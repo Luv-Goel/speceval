@@ -1,0 +1,71 @@
+# =============================================================================
+# speceval.yaml — MMLU Knowledge Evaluation
+# =============================================================================
+# Evaluates a model on the Massive Multitask Language Understanding (MMLU)
+# benchmark — 57 subjects spanning STEM, humanities, social sciences, and
+# more.  Each question is 4-way multiple choice.
+#
+# This spec tests a local Hugging Face model on a subset of MMLU.
+#
+# Usage:
+#   speceval run --spec examples/mmlu/speceval.yaml
+#   speceval validate --spec examples/mmlu/speceval.yaml
+# =============================================================================
+
+# -- Metadata -----------------------------------------------------------------
+
+name: mmlu-eval
+description: >
+  Evaluate factual knowledge and reasoning across 57 academic subjects on
+  the MMLU benchmark (Hendrycks et al., 2020).  The model answers 4-way
+  multiple-choice questions covering STEM, humanities, social sciences,
+  and other domains.
+
+# -- Model under test ---------------------------------------------------------
+#
+# Local open-source model via Hugging Face transformers.  Adjust 'name' to
+# test a different model (e.g. 'mistralai/Mistral-7B-v0.1').
+
+model:
+  provider: huggingface               # runs model locally via transformers
+  name: meta-llama/Llama-3.2-3B       # 3B-parameter instruct model
+  params:
+    device: auto                       # auto-detect GPU / CPU
+    torch_dtype: bfloat16              # memory-efficient half-precision
+    # load_in_8bit: true               # uncomment for GPU memory < 8 GB
+
+# -- Dataset ------------------------------------------------------------------
+
+dataset:
+  source: huggingface
+  path: lukaemon/mmlu                  # widely used MMLU port on Hugging Face
+  split: test                         # official test split
+  subset: all                         # evaluate across all 57 subjects
+  limit: 200                          # limit total examples for quick eval
+  # preprocess: mmlu_helpers.format_multiple_choice
+
+# -- Metrics ------------------------------------------------------------------
+
+metrics:
+  - name: accuracy                    # fraction of correct multiple-choice answers
+
+# -- Execution environment ----------------------------------------------------
+
+trials: 1                             # deterministic for local model
+
+env:
+  seeds:
+    mmlu: 1234                        # fixed seed for subject ordering
+  # dependencies:                     # uncomment if extra packages needed
+  #   - torch>=2.0.0
+
+# -- Assertions (pass/fail gates) ---------------------------------------------
+#
+# Random chance for 4-choice questions is 25%.  A competent model should
+# exceed this baseline.
+
+assertions:
+  - metric_name: accuracy
+    operator: gte
+    value: 0.25                       # random-guess baseline for 4-choice
+    description: Must exceed random-guess baseline of 25%

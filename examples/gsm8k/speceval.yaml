@@ -1,0 +1,63 @@
+# =============================================================================
+# speceval.yaml — GSM8K Math Reasoning Evaluation
+# =============================================================================
+# This specification evaluates a model's ability to solve grade-school math
+# word problems from the GSM8K benchmark (Cobbe et al., 2021).
+#
+# Usage:
+#   speceval run --spec examples/gsm8k/speceval.yaml
+#   speceval validate --spec examples/gsm8k/speceval.yaml
+# =============================================================================
+
+# -- Metadata -----------------------------------------------------------------
+
+name: gsm8k-math-eval
+description: >
+  Evaluate math reasoning capability on the GSM8K (Grade School Math 8K)
+  benchmark.  The model is prompted with grade-school-level math word problems
+  and must produce the correct numeric answer.  Chain-of-thought prompting is
+  recommended for best results.
+
+# -- Model under test ---------------------------------------------------------
+
+model:
+  provider: openai                    # one of: openai, anthropic, huggingface, vllm, custom
+  name: gpt-4o                        # model identifier / deployment name
+  params:                             # optional generation parameters
+    temperature: 0                     #   deterministic output (good for eval)
+    max_tokens: 512                    #   enough for step-by-step reasoning
+  # api_key: $OPENAI_API_KEY           #   defaults to env var; set here if needed
+
+# -- Dataset ------------------------------------------------------------------
+
+dataset:
+  source: huggingface                 # one of: huggingface, csv, jsonl, dict
+  path: gsm8k                         # Hugging Face dataset identifier
+  split: test                         # dataset split to evaluate on
+  subset: main                        # GSM8K has 'main' (5-shot) and 'socratic' subsets
+  limit: 100                          # use only 100 examples for quick iteration
+  # preprocess: my_module.clean_gsm8k # optional preprocessing function
+
+# -- Metrics ------------------------------------------------------------------
+
+metrics:
+  - name: exact_match                 # prediction matches reference character-for-character
+  - name: accuracy                    # fraction of correct answers
+
+# -- Execution environment ----------------------------------------------------
+
+trials: 3                             # number of repeated runs (for stochastic models)
+
+env:
+  seeds:
+    gsm8k: 42                         # fixed seed ensures reproducibility
+  # dependencies:                     # extra pip packages if needed
+  #   - pandas
+
+# -- Assertions (pass/fail gates) ---------------------------------------------
+
+assertions:
+  - metric_name: accuracy
+    operator: gte
+    value: 0.5                        # expect at least 50% accuracy
+    description: Accuracy must not drop below 50% on GSM8K subset

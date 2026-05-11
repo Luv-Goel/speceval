@@ -1,0 +1,28 @@
+name: test-evaluation
+description: A sample evaluation spec for testing
+model:
+  provider: openai
+  name: gpt-4o-mini
+  params:
+    temperature: 0.0
+    max_tokens: 256
+dataset:
+  source: jsonl
+  path: ./test_data.jsonl
+  limit: 10
+metrics:
+  - name: exact_match
+  - name: bleu
+    params:
+      max_n: 4
+trials: 1
+env:
+  seeds:
+    global: 42
+  env_vars:
+    TEST_VAR: hello
+assertions:
+  - metric_name: exact_match
+    operator: gte
+    value: 0.5
+    description: Exact match must be at least 0.5

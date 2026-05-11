@@ -1,0 +1,89 @@
+# =============================================================================
+# speceval.yaml — Model Comparison Template
+# =============================================================================
+# This specification is designed for **comparing two or more models** on the
+# same dataset and metrics.  It defines everything EXCEPT the model section,
+# which you swap between runs.
+#
+# Workflow:
+#   1. Copy this file and set model A's configuration → run A
+#   2. Copy this file and set model B's configuration → run B
+#   3. Compare results:  speceval compare <run_a_id> <run_b_id>
+#
+# ---------------------------------------------------------------------------
+#  EXAMPLE — compare GPT-4o vs Claude 3.5 Sonnet
+# ---------------------------------------------------------------------------
+#  # Run 1 — GPT-4o
+#  cp speceval.yaml speceval-gpt4o.yaml
+#  # edit model section: provider: openai, name: gpt-4o
+#  speceval run --spec speceval-gpt4o.yaml -o results/gpt4o
+#
+#  # Run 2 — Claude
+#  cp speceval.yaml speceval-claude.yaml
+#  # edit model section: provider: anthropic, name: claude-3-5-sonnet-20241022
+#  speceval run --spec speceval-claude.yaml -o results/claude
+#
+#  # Compare
+#  speceval compare gpt-4o_<run_id> claude-3-5-sonnet-20241022_<run_id>
+# =============================================================================
+
+# -- Metadata -----------------------------------------------------------------
+
+name: model-comparison
+description: >
+  Template spec for head-to-head model comparisons.  Swap the 'model' section
+  for each model under test while keeping the dataset and metrics fixed.
+  Use 'speceval compare' to compute deltas, bootstrap p-values, and effect
+  sizes between runs.
+
+# -- Model under test (PLACEHOLDER — replace with your model) -----------------
+
+model:
+  provider: openai                    # <<< CHANGE: openai | anthropic | huggingface | vllm | custom
+  name: gpt-4o-mini                   # <<< CHANGE: model name / deployment ID
+  params:
+    temperature: 0                    #   deterministic — keeps comparisons fair
+    max_tokens: 1024                  #   generous limit for most tasks
+  # api_key: $MODEL_API_KEY           #   set via environment variable
+
+# -- Dataset ------------------------------------------------------------------
+#
+# GSM8K is a good default: well-known, small enough for quick runs, and
+# tests real reasoning ability.  Swap for any dataset you like.
+
+dataset:
+  source: huggingface
+  path: gsm8k
+  split: test
+  subset: main
+  limit: 200                          # larger sample for statistically meaningful deltas
+
+# -- Metrics ------------------------------------------------------------------
+#
+# Include a mix of strict (exact_match) and soft (accuracy, f1) metrics.
+# The 'f1' metric is a macro-F1 scikit-learn based classification metric.
+
+metrics:
+  - name: exact_match                 # strict string equality
+  - name: accuracy                    # correct / total (lenient parsing)
+  - name: f1                          # macro F1 score
+
+# -- Execution environment ----------------------------------------------------
+
+trials: 3                             # multiple trials to estimate variance
+
+env:
+  seeds:
+    global: 42                        # shared seed for all comparisons
+  # dependencies:
+  #   - scikit-learn                  # needed for f1 / precision / recall
+
+# -- Assertions ---------------------------------------------------------------
+#
+# These define a minimum quality bar.  Adjust values for your use case.
+
+assertions:
+  - metric_name: accuracy
+    operator: gte
+    value: 0.7                        # expect at least 70% accuracy
+    description: Accuracy must meet minimum quality threshold

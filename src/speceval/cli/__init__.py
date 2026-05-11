@@ -1,0 +1,1 @@
+"""speceval CLI — commands package."""
