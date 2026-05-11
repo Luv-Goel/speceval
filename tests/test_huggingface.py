@@ -7,6 +7,13 @@ import pytest
 from speceval.adapters.base import ModelAdapter, ModelAdapterFactory
 from speceval.exceptions import ModelAdapterError
 
+# Skip entire module if huggingface dependencies are not available
+try:
+    import torch  # noqa: F401
+    import transformers  # noqa: F401
+except ImportError as e:
+    pytest.skip(f"huggingface dependencies not installed: {e}", allow_module_level=True)
+
 
 class TestHuggingFaceAdapterInit:
     """HuggingFace adapter construction (no actual models loaded)."""
