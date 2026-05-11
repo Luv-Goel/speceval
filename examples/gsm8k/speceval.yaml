@@ -1,7 +1,7 @@
 # =============================================================================
 # speceval.yaml — GSM8K Math Reasoning Evaluation
 # =============================================================================
-# This specification evaluates a model's ability to solve grade-school math
+# This specification evaluates a model’s ability to solve grade-school math
 # word problems from the GSM8K benchmark (Cobbe et al., 2021).
 #
 # Usage:
@@ -24,9 +24,9 @@ model:
   provider: openai                    # one of: openai, anthropic, huggingface, vllm, custom
   name: gpt-4o                        # model identifier / deployment name
   params:                             # optional generation parameters
-    temperature: 0                     #   deterministic output (good for eval)
-    max_tokens: 512                    #   enough for step-by-step reasoning
-  # api_key: $OPENAI_API_KEY           #   defaults to env var; set here if needed
+    temperature: 0                    #   deterministic output (good for eval)
+    max_tokens: 512                   #   enough for step-by-step reasoning
+  # api_key: $OPENAI_API_KEY          #   defaults to env var; set here if needed
 
 # -- Dataset ------------------------------------------------------------------
 
@@ -34,24 +34,25 @@ dataset:
   source: huggingface                 # one of: huggingface, csv, jsonl, dict
   path: gsm8k                         # Hugging Face dataset identifier
   split: test                         # dataset split to evaluate on
-  subset: main                        # GSM8K has 'main' (5-shot) and 'socratic' subsets
-  limit: 100                          # use only 100 examples for quick iteration
+  subset: main                        # GSM8K has 'main' and 'socratic' subsets
+  limit: 200                          # 200 examples balances speed and stability
   # preprocess: my_module.clean_gsm8k # optional preprocessing function
 
 # -- Metrics ------------------------------------------------------------------
 
 metrics:
-  - name: exact_match                 # prediction matches reference character-for-character
+  - name: exact_match                 # character-exact match after whitespace strip
+  - name: numeric_match               # extracts final number; robust to formatting
   - name: accuracy                    # fraction of correct answers
 
 # -- Execution environment ----------------------------------------------------
 
-trials: 3                             # number of repeated runs (for stochastic models)
+trials: 3                             # repeated runs for stochastic models
 
 env:
   seeds:
     gsm8k: 42                         # fixed seed ensures reproducibility
-  # dependencies:                     # extra pip packages if needed
+  # dependencies:
   #   - pandas
 
 # -- Assertions (pass/fail gates) ---------------------------------------------
@@ -59,5 +60,9 @@ env:
 assertions:
   - metric_name: accuracy
     operator: gte
-    value: 0.5                        # expect at least 50% accuracy
-    description: Accuracy must not drop below 50% on GSM8K subset
+    value: 0.75
+    description: Accuracy must be at least 75% on 200-sample GSM8K subset
+  - metric_name: numeric_match
+    operator: gte
+    value: 0.70
+    description: Numeric match must be at least 70% (catches regressions on answer formatting)
