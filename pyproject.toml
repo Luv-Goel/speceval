@@ -35,7 +35,8 @@ dependencies = [
     "jinja2>=3.1",
     "numpy>=1.24",
     "scipy>=1.10",
-    "pyarrow>=12.0",
+    # pyarrow <14.0 is affected by CVE-2023-47248 (arbitrary code exec via IPC)
+    "pyarrow>=14.0",
 ]
 
 [project.optional-dependencies]
@@ -59,7 +60,8 @@ dev = [
     "pytest>=7.4",
     "pytest-asyncio>=0.23",
     "pytest-cov>=4.1",
-    "ruff>=0.1",
+    # keep in sync with .pre-commit-config.yaml ruff-pre-commit rev
+    "ruff>=0.4.9",
     "mypy>=1.7",
     "pre-commit>=3.5",
     "mkdocs>=1.5",
@@ -86,7 +88,11 @@ target-version = "py310"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
+select = ["E", "F", "I", "N", "W", "UP", "RUF"]
+ignore = [
+    # ambiguous variable name — too noisy for research code
+    "E741",
+]
 
 [tool.mypy]
 python_version = "3.10"
@@ -96,3 +102,4 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-q"
