@@ -138,8 +138,6 @@ class TestF1Score:
 
     def test_zero_f1(self):
         """No matches -> F1 = 0.0."""
-        # With two classes and no correct predictions, macro F1 might be > 0
-        # depending on the implementation. Let's use a clear case.
         result = f1_score(["a"], ["b"])
         assert result >= 0.0
         assert result <= 1.0
@@ -239,8 +237,26 @@ class TestExactMatch:
             exact_match(["a"], ["a", "b"])
 
     def test_case_sensitive(self):
-        """Exact match is case-sensitive."""
+        """Exact match is case-sensitive by default."""
         assert exact_match(["Hello"], ["hello"]) == 0.0
+
+    def test_normalize_case_insensitive(self):
+        """normalize=True should treat 'Hello' and 'hello' as equal."""
+        result = exact_match(["Hello World"], ["hello world"], normalize=True)
+        assert result == 1.0, (
+            "normalize=True must lower-case both sides before comparing"
+        )
+
+    def test_normalize_strips_punctuation(self):
+        """normalize=True strips leading/trailing punctuation differences."""
+        result = exact_match(["hello."], ["hello"], normalize=True)
+        # Punctuation-stripped 'hello.' == 'hello'
+        assert result == 1.0
+
+    def test_normalize_false_is_default(self):
+        """Default behavior (normalize omitted) is case-sensitive."""
+        result = exact_match(["HELLO"], ["hello"])
+        assert result == 0.0
 
 
 class TestBLEU:
@@ -249,9 +265,7 @@ class TestBLEU:
     def test_identical_texts(self):
         """Identical texts should get BLEU > 0."""
         score = bleu(["hello world"], ["hello world"])
-        # sacrebleu scales to 0-100, manual also * 100
         assert score > 0.0
-        # Perfect match should be 100
         assert score <= 100.0
 
     def test_completely_different(self):
@@ -276,7 +290,7 @@ class TestBLEU:
     def test_bleu_manual_identical(self):
         """Manual BLEU for identical texts."""
         score = _bleu_manual(["hello world"], ["hello world"])
-        assert score == 1.0  # manual returns 0-1 scale
+        assert score == 1.0
 
     def test_bleu_manual_different(self):
         """Manual BLEU for different texts."""
@@ -343,7 +357,7 @@ class TestROUGEL:
 
     def test_lcs_length(self):
         """LCS length computation works."""
-        assert _lcs_length(["a", "b", "c"], ["a", "c", "b"]) == 2  # "a" and "b" or "a" and "c"
+        assert _lcs_length(["a", "b", "c"], ["a", "c", "b"]) == 2
 
     def test_lcs_length_identical(self):
         """Same lists have full LCS."""
@@ -359,7 +373,6 @@ class TestPerplexity:
 
     def test_known_log_probs(self):
         """Perplexity of uniform distribution with 10 tokens -> exp(-(-2.3026)) ≈ 10."""
-        # log_prob of -2.302585 ≈ ln(0.1) which gives perplexity of 10
         result = perplexity(["-2.302585"], [""])
         assert abs(result - 10.0) < 1.0
 
@@ -373,21 +386,33 @@ class TestPerplexity:
 
     def test_multiple_log_probs(self):
         """Multiple log probs are averaged."""
-        # exp(-(0 + 0)/2) = exp(0) = 1.0
         result = perplexity(["0.0 0.0"], [""])
         assert abs(result - 1.0) < 0.01
 
     def test_single_token(self):
         """Single token log prob computes correctly."""
-        # perplexity = exp(-(-0.5)) = exp(0.5) ≈ 1.6487
         result = perplexity(["-0.5"], [""])
         assert abs(result - math.exp(0.5)) < 0.01
 
     def test_batched_predictions(self):
         """Multiple prediction strings are handled."""
         result = perplexity(["-1.0", "-2.0"], ["", ""])
-        # avg log_prob = -1.5, -avg = 1.5, exp(1.5) ≈ 4.48
         assert abs(result - math.exp(1.5)) < 0.1
+
+    def test_mixed_valid_and_invalid_tokens(self):
+        """Prediction strings that mix valid floats and non-numeric tokens.
+
+        Parser must skip non-float tokens rather than raising or treating
+        them as 0.  Only valid float-parseable tokens contribute to the
+        average log-prob.
+        """
+        # "-1.0 <|endoftext|> -1.0" — the special token in the middle should
+        # be silently skipped, leaving avg_log_prob = -1.0 → ppl = e^1.0
+        result = perplexity(["-1.0 <|endoftext|> -1.0"], [""])
+        # Must be a positive finite number (parser didn't crash)
+        assert result > 0.0 and math.isfinite(result)
+        # With two valid tokens of -1.0 each, ppl ≈ e ≈ 2.718
+        assert abs(result - math.e) < 0.5
 
 
 class TestClassificationHelpers:
@@ -398,7 +423,6 @@ class TestClassificationHelpers:
         y_pred, y_true = _to_labels(["a", "b"], ["a", "c"])
         assert len(y_pred) == 2
         assert len(y_true) == 2
-        # Both arrays should have valid int32 dtype
         assert y_pred.dtype == np.int32
 
     def test_to_labels_consistent_mapping(self):
