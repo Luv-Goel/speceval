@@ -21,64 +21,71 @@ Thanks for your interest in contributing! This document covers the essentials.
 3. **Install in editable mode with dev dependencies**
 
    ```bash
-   pip install -e ".[dev]"
+   make install
    ```
 
-4. **Install pre-commit hooks** (optional but recommended)
+4. **Install pre-commit hooks** (recommended — catches lint/format issues before push)
 
    ```bash
-   pre-commit install
+   make install-hooks
    ```
 
 ## Running Tests
 
 ```bash
-pytest
+make test
 ```
 
-Run tests with coverage:
+With coverage report:
 
 ```bash
 pytest --cov=speceval --cov-report=term-missing
 ```
 
+## Reproducing CI Failures Locally
+
+Before opening a PR, run the same steps as GitHub Actions with:
+
+```bash
+make ci
+```
+
+This runs lint → type-check → tests in order and stops on the first failure,
+mirroring the CI matrix exactly.
+
 ## Code Style
 
-- We use **Ruff** for linting and formatting.
-- Run lint checks before committing:
+- We use **Ruff** for linting and formatting (`ruff>=0.4.9`).
+- Run lint checks: `make lint`
+- Auto-format: `make format`
+- Type hints are required for all public APIs. Run mypy: `make typecheck`
 
-  ```bash
-  ruff check .
-  ```
+## Adding a New Metric
 
-- Auto-format:
-
-  ```bash
-  ruff format .
-  ```
-
-- Type hints are required for all public APIs. Run mypy for static type checking:
-
-  ```bash
-  mypy src/speceval
-  ```
+1. Add your function to `src/speceval/metrics/generation.py` (or
+   `classification.py` for label-based metrics).
+2. Register it in `register_all()` inside `src/speceval/metrics/__init__.py`.
+3. Add tests in `tests/test_metrics.py` — at minimum: perfect score,
+   zero score, empty-list edge case, and length-mismatch raises.
+4. Update `CHANGELOG.md` under `[Unreleased] > Added`.
 
 ## Pull Request Process
 
 1. Fork the repository and create a feature branch from `main`.
 2. Make your changes, add tests for new functionality.
-3. Ensure all tests pass and lint checks are clean.
+3. Run `make ci` and confirm it passes.
 4. Update documentation if your change introduces new features or modifies existing behavior.
 5. Open a pull request with a clear title and description.
 
 ### Commit Messages
 
-Use conventional commit format:
+Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 ```
-feat: add model comparison engine
+feat: add LLM-as-judge metric
 fix: correct numeric match for negative numbers
-docs: update README with CI badges
+test: add normalize=True coverage for exact_match
+docs: update CONTRIBUTING with make targets
 ```
 
 ## Project Structure
@@ -90,14 +97,15 @@ speceval/
 │       ├── cli/        # Command-line interface
 │       ├── core/       # Core evaluation engine
 │       ├── datasets/   # Dataset loaders
-│       ├── models/     # Model provider interfaces
+│       ├── models/     # Model provider adapters
 │       ├── metrics/    # Scoring metrics
 │       └── report/     # Report generation
 ├── tests/              # Test suite
 ├── docs/               # MkDocs documentation
-└── speceval.yaml       # Example spec file
+├── examples/           # Example spec files (gsm8k, mmlu, compare-models)
+└── Makefile            # Dev shortcuts
 ```
 
 ## Questions?
 
-Open an issue on GitHub or start a discussion.
+Open an issue or start a [GitHub Discussion](https://github.com/Luv-Goel/speceval/discussions).
