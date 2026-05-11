@@ -9,8 +9,8 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
 console = Console()
 
@@ -82,8 +82,8 @@ def run(
 
     # Store
     from speceval.config import DEFAULT_STORE_PATH
-    from speceval.store.sqlite import SQLiteStore
     from speceval.provenance.environment import capture_provenance
+    from speceval.store.sqlite import SQLiteStore
 
     store = SQLiteStore(DEFAULT_STORE_PATH)
     store.init_store()

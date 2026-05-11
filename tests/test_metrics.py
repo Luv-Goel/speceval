@@ -7,6 +7,7 @@ import math
 import numpy as np
 import pytest
 
+from speceval.exceptions import MetricError
 from speceval.metrics import (
     compute_metric,
     get,
@@ -32,8 +33,6 @@ from speceval.metrics.generation import (
     perplexity,
     rouge_l,
 )
-from speceval.exceptions import MetricError
-
 
 # Ensure built-in metrics are registered once for the entire module
 _registered_metrics = False

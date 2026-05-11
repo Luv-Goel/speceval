@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 try:
-    import transformers  # noqa: F401
     import torch  # noqa: F401
+    import transformers  # noqa: F401
 
     from speceval.adapters.huggingface import HuggingFaceAdapter
 

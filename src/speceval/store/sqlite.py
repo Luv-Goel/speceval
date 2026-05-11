@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sqlite3
 import threading
 from pathlib import Path
@@ -137,13 +136,19 @@ class SQLiteStore(ResultStore):
         with self._lock:
             self._assert_open()
             try:
+                # Use UPSERT without deleting the row (preserves timestamp and avoids
+                # cascade delete of child results). On conflict, update all fields except
+                # timestamp which remains the original creation time.
                 self._conn.execute(
-                    """INSERT OR REPLACE INTO runs
-                       (id, spec_hash, model_name, dataset_name, timestamp,
-                        provenance_json, status)
-                       VALUES (?, ?, ?, ?, datetime('now'), ?, ?)""",
-                    (run_id, spec_hash, model_name, dataset_name,
-                     provenance_json, status),
+                    """INSERT INTO runs (id, spec_hash, model_name, dataset_name, provenance_json, status)
+                       VALUES (?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(id) DO UPDATE SET
+                           spec_hash=excluded.spec_hash,
+                           model_name=excluded.model_name,
+                           dataset_name=excluded.dataset_name,
+                           provenance_json=excluded.provenance_json,
+                           status=excluded.status""",
+                    (run_id, spec_hash, model_name, dataset_name, provenance_json, status),
                 )
                 self._conn.commit()
             except sqlite3.Error as exc:

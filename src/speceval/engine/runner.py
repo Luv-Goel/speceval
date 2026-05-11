@@ -8,8 +8,9 @@ import json
 import logging
 import time
 import uuid
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any
 
 from rich.console import Console
 from rich.progress import (
@@ -23,7 +24,8 @@ from rich.progress import (
 
 from speceval.engine.task import EvalResult, EvalTask
 from speceval.exceptions import RunnerError
-from speceval.metrics import compute_metric, list_metrics as list_registered_metrics
+from speceval.metrics import compute_metric
+from speceval.metrics import list_metrics as list_registered_metrics
 from speceval.provenance import ProvenanceInfo
 from speceval.spec.model import SpecConfig
 from speceval.store.base import ResultStore
@@ -113,11 +115,6 @@ class EvaluationRunner:
             )
 
             for trial in range(self.spec.trials):
-                trial_label = (
-                    f" (trial {trial + 1}/{self.spec.trials})"
-                    if self.spec.trials > 1
-                    else ""
-                )
                 for item_idx, task in enumerate(tasks):
                     # Caching: skip if already computed for this (run_id, task_id)
                     task_id = self._task_id(task, trial)
@@ -138,7 +135,7 @@ class EvaluationRunner:
                         await self._save_result(run_id, result)
                     except RunnerError:
                         item_errors += 1
-                        error_msg = f"Adapter error: Adapter predict failed"
+                        error_msg = "Adapter error: Adapter predict failed"
                         logger.warning(
                             "Item %d (trial %d) failed: %s",
                             item_idx,

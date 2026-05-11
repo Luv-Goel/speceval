@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from speceval.provenance import ProvenanceInfo
 from speceval.provenance.environment import (
@@ -111,7 +108,7 @@ class TestCaptureProvenance:
 
     def test_include_pip_false(self):
         """With include_pip=False, pip_packages may be absent or None."""
-        info = capture_provenance(include_pip=False)
+        capture_provenance(include_pip=False)
         # It's implementation-defined; check it doesn't raise
         assert True
 

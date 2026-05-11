@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
-import yaml
 
 from speceval.spec.model import (
     AssertionConfig,
@@ -59,7 +58,7 @@ def sample_spec() -> SpecConfig:
 
 
 @pytest.fixture
-def sample_spec_dict() -> Dict[str, Any]:
+def sample_spec_dict() -> dict[str, Any]:
     """Return a raw dict matching sample_spec, as if parsed from YAML."""
     return {
         "name": "test-evaluation",
@@ -177,7 +176,6 @@ trials: 1
 @pytest.fixture
 def mock_adapter():
     """Return a mock model adapter for runner tests."""
-    import asyncio
     from unittest.mock import AsyncMock, MagicMock
 
     adapter = MagicMock()
