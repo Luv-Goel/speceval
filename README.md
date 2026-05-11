@@ -7,6 +7,8 @@
 
 **Reproducible evaluation specifications for AI systems.**
 
+SpecEval lets you define AI evaluations as version-controlled, auditable, composable YAML — promoting reproducibility and rigour in ML research workflows.
+
 ---
 
 ## Quick Start
@@ -28,7 +30,84 @@ SpecEval brings declarative evaluation specifications to AI. You write a single 
 
 ---
 
-## Example Spec
+## Example: GSM8K Math Reasoning
+
+The following toy spec evaluates two LLMs on grade-school math reasoning and produces a head-to-head comparison report in one command:
+
+```yaml
+# speceval.yaml
+name: gsm8k-mini-demo
+description: Comparing GPT-4o vs Claude on 50 GSM8K samples
+
+dataset:
+  path: speceval/gsm8k
+  split: test
+  subset: main
+  limit: 50  # quick smoke-test
+
+models:
+  - id: openai/gpt-4o
+    provider: openai
+    params: { temperature: 0, max_tokens: 512 }
+  - id: anthropic/claude-3-opus-20240229
+    provider: anthropic
+    params: { temperature: 0, max_tokens: 512 }
+
+prompt:
+  template: |
+    Solve step by step.
+
+    {question}
+
+    Answer:
+  variables:
+    question: question
+
+metrics:
+  - exact_match
+  - numeric_match
+
+report:
+  format: html
+  output: gsm8k-demo-report.html
+  include: [scores, examples]
+```
+
+Run it:
+
+```bash
+speceval run speceval.yaml
+# ✔ Loaded 50 samples from GSM8K (main, test)
+# ✔ Queried openai/gpt-4o: 50/50
+# ✔ Queried anthropic/claude-3-opus-20240229: 50/50
+# ✔ Computed metrics: exact_match, numeric_match
+# ✔ Report written to gsm8k-demo-report.html
+```
+
+Sample output:
+
+| Model | Exact Match | Numeric Match |
+|-------|-------------|---------------|
+| openai/gpt-4o | 0.88 | 0.92 |
+| anthropic/claude-3-opus | 0.84 | 0.89 |
+
+> The spec above is checked into version control. Re-running it 6 months later on the same dataset split produces identical scores — no hidden randomness.
+
+---
+
+## Key Features
+
+- **Declarative specs** — One YAML file defines the entire evaluation pipeline.
+- **Reproducible by default** — Deterministic seeding, pinned datasets, full provenance logging.
+- **Model-agnostic** — Works with OpenAI, Anthropic, open-source models (vLLM, Ollama), and local model servers.
+- **Built-in metrics** — Exact match, numeric match, pass@k, BLEU, ROUGE, LLM-as-judge, and custom Python metrics.
+- **Comparison engine** — Head-to-head model comparisons with statistical significance tests.
+- **CI-ready** — Run evaluation specs directly in GitHub Actions, GitLab CI, or any CI system.
+- **Portable reports** — Self-contained HTML reports with interactive charts, confusion matrices, and per-example breakdowns.
+
+---
+
+## Full Spec Reference
 
 ```yaml
 # speceval.yaml — evaluate on GSM8K
@@ -78,18 +157,6 @@ report:
   output: report.html
   include: [scores, comparisons, examples]
 ```
-
----
-
-## Key Features
-
-- **Declarative specs** — One YAML file defines the entire evaluation pipeline.
-- **Reproducible by default** — Deterministic seeding, pinned datasets, full provenance logging.
-- **Model-agnostic** — Works with OpenAI, Anthropic, open-source models (vLLM, Ollama), and local model servers.
-- **Built-in metrics** — Exact match, numeric match, pass@k, BLEU, ROUGE, LLM-as-judge, and custom Python metrics.
-- **Comparison engine** — Head-to-head model comparisons with statistical significance tests.
-- **CI-ready** — Run evaluation specs directly in GitHub Actions, GitLab CI, or any CI system.
-- **Portable reports** — Self-contained HTML reports with interactive charts, confusion matrices, and per-example breakdowns.
 
 ---
 
