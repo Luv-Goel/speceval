@@ -38,7 +38,7 @@ description: Grade-school math reasoning benchmark
 dataset:
   path: speceval/gsm8k
   split: test
-  subset: main  # GSM8K main (5-shot) subset
+  subset: main
 
 models:
   - id: openai/gpt-4o
@@ -88,8 +88,8 @@ report:
 - **Model-agnostic** — Works with OpenAI, Anthropic, open-source models (vLLM, Ollama), and local model servers.
 - **Built-in metrics** — Exact match, numeric match, pass@k, BLEU, ROUGE, LLM-as-judge, and custom Python metrics.
 - **Comparison engine** — Head-to-head model comparisons with statistical significance tests.
-- **CI-ready** — Run evaluation specs directly in GitHub Actions, GitLab CI, or any CI system.
-- **Portable reports** — Self-contained HTML reports with interactive charts, confusion matrices, and per-example breakdowns.
+- **CI-ready** — Run evaluation specs directly in any CI system.
+- **Portable reports** — Self-contained HTML reports with interactive charts and per-example breakdowns.
 
 ---
 
@@ -101,7 +101,7 @@ Evaluate GPT-4o and Claude on GSM8K:
 # Initialize a new evaluation spec
 speceval init gsm8k-eval
 
-# Run the evaluation (downloads datasets, queries models, computes scores)
+# Run the evaluation
 speceval run gsm8k-eval/speceval.yaml
 
 # View the report
@@ -114,8 +114,6 @@ The `speceval run` command will:
 3. Compute exact match and numeric match scores.
 4. Generate a pairwise comparison between both models.
 5. Write results and a full HTML report to the output directory.
-
-Open the report to see per-model accuracy, error breakdowns, and side-by-side examples where the models disagreed.
 
 ---
 
@@ -137,31 +135,6 @@ pip install -e ".[dev]"
 
 ---
 
-## Documentation
-
-Full documentation is available at: [https://speceval.dev](https://speceval.dev)
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style guidelines, and pull request process.
-
----
-
-## Citation
-
-```bibtex
-@software{speceval2025,
-  author = {Goel, Luv},
-  title = {SpecEval: Reproducible Evaluation Specifications for AI Systems},
-  year = {2025},
-  url = {https://github.com/Luv-Goel/speceval}
-}
-```
-
----
-
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE).
+Apache 2.0.

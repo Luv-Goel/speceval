@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+speceval_results/
+*.db
+*.db-wal
+*.db-shm
+
+# MkDocs
+_site/
+
+# Random helper scripts used during dev
+_test_imports.py
+_validate_examples.py
