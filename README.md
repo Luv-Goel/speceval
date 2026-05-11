@@ -139,7 +139,7 @@ pip install -e ".[dev]"
 
 ## Documentation
 
-Full documentation is available at: [https://speceval.dev](https://speceval.dev)
+Full documentation is available at: Coming Soon
 
 ---
 
@@ -155,7 +155,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style guidel
 @software{speceval2025,
   author = {Goel, Luv},
   title = {SpecEval: Reproducible Evaluation Specifications for AI Systems},
-  year = {2025},
+  year = {2026},
   url = {https://github.com/Luv-Goel/speceval}
 }
 ```
