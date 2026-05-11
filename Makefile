@@ -1,8 +1,12 @@
-.PHONY: install test lint typecheck clean docs
+.PHONY: install install-hooks test lint typecheck format ci clean docs docs-serve
 
 # Install the package in editable mode with dev dependencies
 install:
 	pip install -e ".[dev]"
+
+# Install pre-commit hooks (run once after cloning)
+install-hooks:
+	pre-commit install
 
 # Run all tests with coverage
 test:
@@ -20,6 +24,10 @@ format:
 typecheck:
 	mypy src/speceval
 
+# Run the same checks as CI (lint -> typecheck -> test)
+# Use this locally before opening a PR to catch failures early.
+ci: lint typecheck test
+
 # Build documentation with MkDocs
 docs:
 	mkdocs build
@@ -30,15 +38,6 @@ docs-serve:
 
 # Clean build artifacts and caches
 clean:
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
-	rm -rf .pytest_cache/
-	rm -rf .ruff_cache/
-	rm -rf .mypy_cache/
-	rm -rf __pycache__/
-	rm -rf **/__pycache__/
-	rm -rf site/
-	rm -rf coverage.xml
+	rm -rf build/ dist/ *.egg-info .pytest_cache/ .ruff_cache/ .mypy_cache/ site/ coverage.xml
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
