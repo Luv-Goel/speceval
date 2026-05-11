@@ -11,7 +11,7 @@ def get_config_dir() -> Path:
         return Path(xdg) / "speceval"
     home = Path.home()
     if os.name == "nt":  # Windows
-        return Path(os.environ.get("APPDATA", home / "AppData/Roaming")) / "speceval"
+        return Path(os.environ.get("APPDATA", str(home / "AppData/Roaming"))) / "speceval"
     return home / ".config" / "speceval"
 
 
@@ -22,7 +22,11 @@ def get_cache_dir() -> Path:
         return Path(xdg) / "speceval"
     home = Path.home()
     if os.name == "nt":
-        return Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "speceval" / "cache"
+        return (
+            Path(os.environ.get("LOCALAPPDATA", str(home / "AppData/Local")))
+            / "speceval"
+            / "cache"
+        )
     return home / ".cache" / "speceval"
 
 
@@ -33,7 +37,11 @@ def get_data_dir() -> Path:
         return Path(xdg) / "speceval"
     home = Path.home()
     if os.name == "nt":
-        return Path(os.environ.get("APPDATA", home / "AppData/Roaming")) / "speceval" / "data"
+        return (
+            Path(os.environ.get("APPDATA", str(home / "AppData/Roaming")))
+            / "speceval"
+            / "data"
+        )
     return home / ".local" / "share" / "speceval"
 
 
@@ -42,10 +50,13 @@ CONFIG_DIR = get_config_dir()
 CACHE_DIR = get_cache_dir()
 DATA_DIR = get_data_dir()
 
-# Ensure directories exist
-CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+# Create directories only if the filesystem allows it (skip silently in
+# read-only environments such as some CI containers or Docker images).
+for _d in (CONFIG_DIR, CACHE_DIR, DATA_DIR):
+    try:
+        _d.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
 
 # Default SQLite store path
 DEFAULT_STORE_PATH = DATA_DIR / "results.db"
@@ -53,5 +64,6 @@ DEFAULT_STORE_PATH = DATA_DIR / "results.db"
 # Default report output directory
 DEFAULT_REPORT_DIR = Path.cwd() / "speceval_reports"
 
-# Env vars for runtime configuration
-ENV_API_KEY_PREFIX = "SPECTEVAL_API_KEY_"
+# Env-var prefix used by adapters to look up API keys.
+# Format: SPECEVAL_API_KEY_<PROVIDER>  e.g. SPECEVAL_API_KEY_OPENAI
+ENV_API_KEY_PREFIX = "SPECEVAL_API_KEY_"
