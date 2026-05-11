@@ -27,11 +27,19 @@ Thumbs.db
 
 # Project specific
 speceval_results/
+speceval_reports/
+.speceval/
 *.db
 *.db-wal
 *.db-shm
+*.log
+
+# Local env file (API keys — never commit)
+.env
+.env.local
 
 # MkDocs
+site/
 _site/
 
 # Random helper scripts used during dev
