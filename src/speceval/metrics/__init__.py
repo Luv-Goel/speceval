@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable
+from typing import Any
 
 from speceval.exceptions import MetricError
 
+from . import classification, generation
 from .base import MetricFn, MetricResult
-from . import classification
-from . import generation
 
 logger = logging.getLogger(__name__)
 

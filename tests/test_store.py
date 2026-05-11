@@ -236,7 +236,8 @@ class TestSQLiteStorePersistence:
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Windows temp file locking")
     def test_persistence_to_file(self):
         """Data persists when store is closed and reopened."""
-        import tempfile, os
+        import os
+        import tempfile
         tmp = tempfile.mktemp(suffix=".db", prefix="speceval_persist_")
         db_path = tmp
 

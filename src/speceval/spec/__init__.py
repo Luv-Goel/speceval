@@ -1,5 +1,6 @@
 """Specification models — parse, validate, hash, and resolve evaluation specs."""
 
+from speceval.spec.hash import hash_spec, hash_spec_from_path
 from speceval.spec.model import (
     AssertionConfig,
     DatasetConfig,
@@ -9,9 +10,8 @@ from speceval.spec.model import (
     SpecConfig,
 )
 from speceval.spec.parse import parse_spec, parse_spec_string, spec_to_yaml
-from speceval.spec.validate import validate_spec, validate_spec_strict
-from speceval.spec.hash import hash_spec, hash_spec_from_path
 from speceval.spec.resolve import resolve_spec
+from speceval.spec.validate import validate_spec, validate_spec_strict
 
 __all__ = [
     # Models

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-from speceval.cli.commands import init, run, validate, compare, report
+from speceval.cli.commands import compare, init, report, run, validate
 
 app = typer.Typer(
     name="speceval",
@@ -23,7 +23,6 @@ app.command(name="report")(report.run)
 @app.command()
 def list():
     """List recorded runs from the default store."""
-    from pathlib import Path
     from speceval.config import DEFAULT_STORE_PATH
     from speceval.store.sqlite import SQLiteStore
 

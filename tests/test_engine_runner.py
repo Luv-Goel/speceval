@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from speceval.engine.runner import EvaluationRunner, get_runner
-from speceval.engine.task import EvalResult, EvalTask
+from speceval.engine.task import EvalTask
 from speceval.exceptions import RunnerError
 from speceval.provenance import ProvenanceInfo
 from speceval.spec.model import (
@@ -172,7 +172,9 @@ class TestEvaluationRunner:
         assert first_call_args == [{"prompt": "Hello"}]
 
     @pytest.mark.asyncio
-    async def test_result_contains_metrics(self, basic_spec, sqlite_store, provenance, mock_adapter):
+    async def test_result_contains_metrics(
+        self, basic_spec, sqlite_store, provenance, mock_adapter
+    ):
         """Results contain computed metrics."""
         from speceval.metrics import register_all
         register_all()

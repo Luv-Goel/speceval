@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import yaml
 
@@ -11,10 +11,10 @@ from speceval.exceptions import SpecParseError
 from speceval.spec.model import SpecConfig
 
 
-def _load_yaml(content: str) -> Dict[str, Any]:
+def _load_yaml(content: str) -> dict[str, Any]:
     """Parse *content* as YAML and return a raw dict."""
     try:
-        data: Dict[str, Any] = yaml.safe_load(content)
+        data: dict[str, Any] = yaml.safe_load(content)
     except yaml.YAMLError as exc:
         raise SpecParseError(f"YAML parse error: {exc}") from exc
     if not isinstance(data, dict):
@@ -22,7 +22,7 @@ def _load_yaml(content: str) -> Dict[str, Any]:
     return data
 
 
-def _validate_has_name(data: Dict[str, Any]) -> None:
+def _validate_has_name(data: dict[str, Any]) -> None:
     """Early check that a ``name`` key exists for better error messages."""
     if "name" not in data or not data["name"]:
         raise SpecParseError("spec must contain a non-empty 'name' field")
@@ -85,13 +85,13 @@ def spec_to_yaml(spec: SpecConfig) -> str:
         SpecParseError: If serialization fails unexpectedly.
     """
     try:
-        raw: Dict[str, Any] = spec.model_dump(
+        raw: dict[str, Any] = spec.model_dump(
             mode="python",
             exclude_unset=False,
             exclude_defaults=False,
         )
         # Strip out None values for a cleaner output (keep empty containers).
-        cleaned: Dict[str, Any] = _strip_none(raw)
+        cleaned: dict[str, Any] = _strip_none(raw)
         return yaml.dump(
             cleaned,
             default_flow_style=False,

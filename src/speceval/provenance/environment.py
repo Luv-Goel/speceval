@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import datetime
 import importlib.metadata
-import os
 import platform
-import re
 import shutil
 import subprocess
 import sys
@@ -14,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from speceval.provenance import ProvenanceInfo
+    pass
 
 
 def capture_provenance(

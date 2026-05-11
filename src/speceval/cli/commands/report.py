@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import typer
 from rich.console import Console
 
@@ -58,7 +56,10 @@ def run(
             from speceval.report.html import generate_html_report
 
             out_path = generate_html_report(run_id, store, output)
-            console.print(f"[green]✔[/green] Report for run {run_id!r} written to [bold]{out_path}[/bold]")
+            console.print(
+                f"[green]✔[/green] Report for run {run_id!r} written to"
+                f" [bold]{out_path}[/bold]"
+            )
         else:
             console.print("[red]✘[/red] Provide either --run-id or --compare.")
             raise typer.Exit(code=1)

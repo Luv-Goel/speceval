@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
-from pydantic import Field, field_validator, model_validator
 from pydantic import BaseModel as _BaseModel
+from pydantic import Field, model_validator
 
 
 class BaseModel(_BaseModel):
@@ -38,8 +37,8 @@ class MetricConfig(BaseModel):
     """
 
     name: str
-    params: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    threshold: Optional[float] = None
+    params: dict[str, Any] | None = Field(default_factory=dict)
+    threshold: float | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -60,7 +59,7 @@ class AssertionConfig(BaseModel):
     metric_name: str
     operator: Literal["gte", "lte", "eq", "approx"]
     value: float | int | str | bool
-    description: Optional[str] = None
+    description: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -85,10 +84,10 @@ class DatasetConfig(BaseModel):
 
     source: Literal["huggingface", "csv", "jsonl", "dict"]
     path: str | list[dict[str, Any]] | None = None
-    split: Optional[str] = None
-    subset: Optional[str] = None
-    limit: Optional[int] = None
-    preprocess: Optional[str] = None
+    split: str | None = None
+    subset: str | None = None
+    limit: int | None = None
+    preprocess: str | None = None
 
     @model_validator(mode="after")
     def _check_limit_positive(self) -> DatasetConfig:
@@ -117,9 +116,9 @@ class ModelConfig(BaseModel):
 
     provider: KnownProvider
     name: str
-    params: Optional[Dict[str, Any]] = Field(default_factory=dict)
-    endpoint: Optional[str] = None
-    api_key: Optional[str] = None
+    params: dict[str, Any] | None = Field(default_factory=dict)
+    endpoint: str | None = None
+    api_key: str | None = None
 
     @model_validator(mode="after")
     def _check_endpoint_for_custom(self) -> ModelConfig:
@@ -143,10 +142,10 @@ class EnvConfig(BaseModel):
         env_vars: Extra environment variables to set during evaluation.
     """
 
-    seeds: Optional[Dict[str, int]] = Field(default_factory=dict)
-    dependencies: Optional[List[str]] = Field(default_factory=list)
-    docker: Optional[str] = None
-    env_vars: Optional[Dict[str, str]] = Field(default_factory=dict)
+    seeds: dict[str, int] | None = Field(default_factory=dict)
+    dependencies: list[str] | None = Field(default_factory=list)
+    docker: str | None = None
+    env_vars: dict[str, str] | None = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _check_seed_keys(self) -> EnvConfig:
@@ -185,14 +184,14 @@ class SpecConfig(BaseModel):
     """
 
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     model: ModelConfig
     dataset: DatasetConfig
-    metrics: List[MetricConfig] = Field(min_length=1)
+    metrics: list[MetricConfig] = Field(min_length=1)
     trials: int = Field(default=1, ge=1)
-    seeds: Optional[Dict[str, int]] = Field(default_factory=dict)
-    env: Optional[EnvConfig] = None
-    assertions: Optional[List[AssertionConfig]] = None
+    seeds: dict[str, int] | None = Field(default_factory=dict)
+    env: EnvConfig | None = None
+    assertions: list[AssertionConfig] | None = None
 
     @model_validator(mode="after")
     def _check_seeds_duplicates(self) -> SpecConfig:

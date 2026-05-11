@@ -125,7 +125,6 @@ class HuggingFaceAdapter(ModelAdapter):
 
     def _predict_sync(self, inputs: list[dict]) -> list[dict]:
         """Synchronous batched inference (runs in thread pool)."""
-        import torch
 
         results: list[dict] = []
 

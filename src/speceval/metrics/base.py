@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, NamedTuple, Protocol
+from typing import Any, NamedTuple, Protocol
 
 
 class MetricFn(Protocol):
