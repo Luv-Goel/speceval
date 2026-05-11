@@ -18,6 +18,16 @@ speceval run my-eval/speceval.yaml
 speceval report my-eval --open
 ```
 
+For development, use the Makefile shortcuts:
+
+```bash
+git clone https://github.com/Luv-Goel/speceval.git
+cd speceval
+make install          # pip install -e '.[dev]'
+make install-hooks    # set up pre-commit hooks
+make ci               # lint → typecheck → test (mirrors GitHub Actions)
+```
+
 ---
 
 ## Why SpecEval?
@@ -93,30 +103,6 @@ report:
 
 ---
 
-## Quick Tutorial
-
-Evaluate GPT-4o and Claude on GSM8K:
-
-```bash
-# Initialize a new evaluation spec
-speceval init gsm8k-eval
-
-# Run the evaluation
-speceval run gsm8k-eval/speceval.yaml
-
-# View the report
-speceval report gsm8k-eval --open
-```
-
-The `speceval run` command will:
-1. Download the GSM8K dataset (main subset).
-2. Query each model with 5-shot prompts.
-3. Compute exact match and numeric match scores.
-4. Generate a pairwise comparison between both models.
-5. Write results and a full HTML report to the output directory.
-
----
-
 ## Installation
 
 ```bash
@@ -124,14 +110,6 @@ pip install speceval
 ```
 
 Requires Python 3.10+.
-
-For development:
-
-```bash
-git clone https://github.com/Luv-Goel/speceval.git
-cd speceval
-pip install -e ".[dev]"
-```
 
 ---
 
