@@ -2,7 +2,31 @@
 
 
 class SpecEvalError(Exception):
-    """Base exception for all speceval errors."""
+    """Base exception for all speceval errors.
+
+    Adds a prefixed ``__str__`` so that log lines produced by any
+    sub-class are immediately greppable::
+
+        [SpecValidationError] field 'metric' is required
+
+    Sub-classes that need additional structured fields (e.g. a spec path
+    or model name) should call ``super().__init__(message)`` and store
+    the extra data as instance attributes rather than embedding them in
+    the message string.
+    """
+
+    def __str__(self) -> str:  # pragma: no cover
+        tag = type(self).__name__
+        msg = super().__str__()
+        # Avoid double-tagging if the message was already tagged (e.g.
+        # when an exception is re-raised with str(original_exc) as the
+        # new message).
+        if msg.startswith(f"[{tag}]"):
+            return msg
+        return f"[{tag}] {msg}" if msg else f"[{tag}]"
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"{type(self).__name__}({super().__str__()!r})"
 
 
 class SpecValidationError(SpecEvalError):
