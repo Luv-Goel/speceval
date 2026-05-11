@@ -82,10 +82,8 @@ class EvaluationRunner:
         if self._adapter is None:
             self._adapter = await self._resolve_adapter()
 
-        # Persist run metadata via the sync store (offloaded to executor)
         await self._save_run_metadata(run_id)
 
-        # Load dataset
         tasks: list[EvalTask] = []
         async for task in self._load_dataset():
             tasks.append(task)
@@ -97,7 +95,6 @@ class EvaluationRunner:
         item_errors = 0
         max_errors = self.spec.error_tolerance if hasattr(self.spec, "error_tolerance") else 0
 
-        # Progress bar
         self._progress = Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -113,13 +110,7 @@ class EvaluationRunner:
             )
 
             for trial in range(self.spec.trials):
-                trial_label = (
-                    f" (trial {trial + 1}/{self.spec.trials})"
-                    if self.spec.trials > 1
-                    else ""
-                )
                 for item_idx, task in enumerate(tasks):
-                    # Caching: skip if already computed for this (run_id, task_id)
                     task_id = self._task_id(task, trial)
                     if hasattr(self.spec, "cache") and self.spec.cache:
                         try:
@@ -136,33 +127,7 @@ class EvaluationRunner:
                         result.metadata["trial"] = trial
                         result.metadata["item_index"] = item_idx
                         await self._save_result(run_id, result)
-                    except RunnerError:
-                        item_errors += 1
-                        error_msg = f"Adapter error: Adapter predict failed"
-                        logger.warning(
-                            "Item %d (trial %d) failed: %s",
-                            item_idx,
-                            trial,
-                            error_msg,
-                        )
-                        # Record a failed result so it's not silently lost
-                        failed = EvalResult(
-                            input=task.model_input,
-                            expected=task.expected_output,
-                            prediction=None,
-                            error=error_msg,
-                            metadata={
-                                "task_id": task_id,
-                                "trial": trial,
-                                "item_index": item_idx,
-                                "failed": True,
-                            },
-                        )
-                        try:
-                            await self._save_result(run_id, failed)
-                        except Exception:
-                            pass
-                    except Exception as exc:
+                    except (RunnerError, Exception) as exc:
                         item_errors += 1
                         error_msg = f"{type(exc).__name__}: {exc}"
                         logger.warning(
@@ -171,7 +136,6 @@ class EvaluationRunner:
                             trial,
                             error_msg,
                         )
-                        # Record a failed result so it's not silently lost
                         failed = EvalResult(
                             input=task.model_input,
                             expected=task.expected_output,
@@ -265,7 +229,7 @@ class EvaluationRunner:
                     )
 
         elif source == "dict":
-            data = self.spec.dataset.path  # inline data as dict path
+            data = self.spec.dataset.path
             raw_items = data if isinstance(data, list) else []
             for item_idx, item in enumerate(raw_items):
                 yield EvalTask(
@@ -305,8 +269,6 @@ class EvaluationRunner:
         duration_ms = (time.monotonic() - start) * 1000.0
 
         prediction = predictions[0] if predictions else None
-
-        # Compute metrics using the speceval.metrics registry
         metrics = await self._compute_metrics(prediction, task.expected_output)
 
         return EvalResult(
@@ -323,10 +285,7 @@ class EvaluationRunner:
         prediction: Any,
         expected: Any,
     ) -> dict[str, float]:
-        """Compute all metrics listed in ``self.spec.metrics``.
-
-        Uses the global metric registry from ``speceval.metrics``.
-        """
+        """Compute all metrics listed in ``self.spec.metrics``."""
         metrics: dict[str, float] = {}
         registered = list_registered_metrics()
 
@@ -338,12 +297,9 @@ class EvaluationRunner:
                 continue
 
             try:
-                # The metric registry expects list[str] inputs.  For per-item
-                # evaluation we wrap single strings in single-element lists.
                 pred_list = [str(prediction)] if prediction is not None else [""]
                 ref_list = [str(expected)] if expected is not None else [""]
 
-                # Collect extra kwargs from the metric config (if available)
                 kwargs = {}
                 if hasattr(metric_cfg, "params") and metric_cfg.params:
                     kwargs = metric_cfg.params
@@ -374,16 +330,8 @@ class EvaluationRunner:
 
         return ModelAdapterFactory.create(config)
 
-    # ------------------------------------------------------------------
-    # Sync store wrappers (offloaded to thread executor)
-    # ------------------------------------------------------------------
-
     async def _save_run_metadata(self, run_id: str) -> None:
-        """Persist run-level metadata via the sync store.
-
-        Tries ``save_run`` first (available on SQLiteStore); falls back to
-        storing metadata as a special result entry.
-        """
+        """Persist run-level metadata via the sync store."""
 
         def _sync() -> None:
             self.store.init_store()
@@ -400,7 +348,6 @@ class EvaluationRunner:
                     status="running",
                 )
             except AttributeError:
-                # Store does not implement save_run — store metadata as result
                 import json
 
                 self.store.save_result(
@@ -453,15 +400,9 @@ class EvaluationRunner:
                 results = self.store.get_results(run_id)
             except Exception:
                 return False
-            # task_id is stored in metrics_json or we derive from item_index
-            # Here we do a simple heuristic — check count of results
             return len(results) > 0
 
         return await asyncio.get_event_loop().run_in_executor(None, _sync)
-
-    # ------------------------------------------------------------------
-    # Task identifier
-    # ------------------------------------------------------------------
 
     @staticmethod
     def _task_id(task: EvalTask, trial: int) -> str:
@@ -477,9 +418,6 @@ class EvaluationRunner:
 
 async def get_runner(spec_path: str) -> EvaluationRunner:
     """Load a spec file and return an ``EvaluationRunner`` instance.
-
-    This convenience function parses the YAML spec, creates a SQLite store
-    at the default path, captures provenance, and wires everything together.
 
     Parameters
     ----------
