@@ -22,12 +22,19 @@ except ImportError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 
 
-def exact_match(predictions: list[str], references: list[str], **kwargs: Any) -> float:
+def exact_match(
+    predictions: list[str],
+    references: list[str],
+    normalize: bool = False,
+    **kwargs: Any,
+) -> float:
     """Fraction of predictions that exactly match the reference (after stripping).
 
     Args:
         predictions: Model outputs.
         references: Ground-truth answers.
+        normalize: If ``True``, fold to lower-case before comparison.  This
+            matches the convention used in SQuAD-style QA benchmarks.
 
     Returns:
         Exact match score in ``[0, 1]``.
@@ -40,9 +47,11 @@ def exact_match(predictions: list[str], references: list[str], **kwargs: Any) ->
     if len(predictions) == 0:
         return 0.0
 
-    correct = sum(
-        1 for p, r in zip(predictions, references) if p.strip() == r.strip()
-    )
+    def _norm(s: str) -> str:
+        s = s.strip()
+        return s.lower() if normalize else s
+
+    correct = sum(1 for p, r in zip(predictions, references) if _norm(p) == _norm(r))
     return correct / len(predictions)
 
 
@@ -62,7 +71,11 @@ def _ngrams(tokens: list[str], n: int) -> Counter:
 
 
 def _bleu_manual(predictions: list[str], references: list[str]) -> float:
-    """Compute corpus-level BLEU-4 with a simple numpy implementation."""
+    """Compute corpus-level BLEU-4 with a pure-Python / numpy implementation.
+
+    Guards against division-by-zero when short sequences produce fewer than
+    4 tokens, and clamps ``effective_n`` to at least 1.
+    """
     max_n = 4
     pred_tokens = [_tokenize(p) for p in predictions]
     ref_tokens = [_tokenize(r) for r in references]
@@ -78,7 +91,8 @@ def _bleu_manual(predictions: list[str], references: list[str]) -> float:
         total_ref_len += ref_len
         total_pred_len += pred_len
 
-        effective_n = min(max_n, max(ref_len, pred_len))
+        # clamp to 1 so the loop always executes at least once
+        effective_n = max(1, min(max_n, max(ref_len, pred_len)))
         for n in range(1, effective_n + 1):
             pred_ng = _ngrams(pt, n)
             ref_ng = _ngrams(rt, n)
@@ -86,14 +100,16 @@ def _bleu_manual(predictions: list[str], references: list[str]) -> float:
             total_clipped[n - 1] += clipped
             total_pred_count[n - 1] += max(pred_len - n + 1, 0)
 
-    # Brevity penalty
-    bp = min(1.0, math.exp(1 - total_ref_len / max(total_pred_len, 1)))
+    # Brevity penalty — guard against zero total_pred_len
+    if total_pred_len == 0:
+        return 0.0
+    bp = min(1.0, math.exp(1 - total_ref_len / total_pred_len))
 
     nonzero_prec = []
     for n in range(max_n):
-        if total_pred_count[n] == 0 or total_clipped[n] == 0:
-            if total_pred_count[n] == 0:
-                continue  # skip n-grams that never occurred
+        if total_pred_count[n] == 0:
+            continue  # n-gram order never occurred — skip
+        if total_clipped[n] == 0:
             nonzero_prec.append(0.0)
         else:
             nonzero_prec.append(total_clipped[n] / total_pred_count[n])
@@ -101,15 +117,11 @@ def _bleu_manual(predictions: list[str], references: list[str]) -> float:
     if not nonzero_prec:
         return 0.0
 
-    if any(p == 0 for p in nonzero_prec):
-        # Use only lower-order n-grams that have non-zero precision
-        nonzero = [p for p in nonzero_prec if p > 0]
-        if not nonzero:
-            return 0.0
-        avg_log_prec = sum(math.log(p) for p in nonzero) / len(nonzero)
-    else:
-        avg_log_prec = sum(math.log(p) for p in nonzero_prec) / len(nonzero_prec)
+    positive = [p for p in nonzero_prec if p > 0]
+    if not positive:
+        return 0.0
 
+    avg_log_prec = sum(math.log(p) for p in positive) / len(positive)
     return float(bp * math.exp(avg_log_prec))
 
 
@@ -147,7 +159,12 @@ def bleu(predictions: list[str], references: list[str], **kwargs: Any) -> float:
 
 
 def _lcs_length(a: list[str], b: list[str]) -> int:
-    """Longest common subsequence length between two token lists."""
+    """Longest common subsequence length between two token lists.
+
+    Uses a standard DP table (O(mn) time, O(mn) space).  For very long
+    sequences this can be memory-intensive; inputs are typically short
+    NLG outputs so this is acceptable.
+    """
     m, n = len(a), len(b)
     dp = np.zeros((m + 1, n + 1), dtype=np.int32)
     for i in range(1, m + 1):
