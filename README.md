@@ -13,6 +13,8 @@ SpecEval lets you define AI evaluations as version-controlled, auditable, compos
 
 ## Quick Start
 
+Get started with SpecEval in less than a minute:
+
 ```bash
 pip install speceval
 speceval init my-eval
