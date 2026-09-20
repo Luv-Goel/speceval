@@ -49,7 +49,10 @@ def exact_match(
 
     def _norm(s: str) -> str:
         s = s.strip()
-        return s.lower() if normalize else s
+        if normalize:
+            import string
+            s = s.strip(string.punctuation).lower()
+        return s
 
     correct = sum(1 for p, r in zip(predictions, references) if _norm(p) == _norm(r))
     return correct / len(predictions)
