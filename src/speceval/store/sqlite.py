@@ -148,10 +148,17 @@ class SQLiteStore(ResultStore):
             assert self._conn is not None
             try:
                 self._conn.execute(
-                    """INSERT OR REPLACE INTO runs
+                    """INSERT INTO runs
                        (id, spec_hash, model_name, dataset_name, timestamp,
                         provenance_json, status)
-                       VALUES (?, ?, ?, ?, datetime('now'), ?, ?)""",
+                       VALUES (?, ?, ?, ?, datetime('now'), ?, ?)
+                       ON CONFLICT(id) DO UPDATE SET
+                           spec_hash = excluded.spec_hash,
+                           model_name = excluded.model_name,
+                           dataset_name = excluded.dataset_name,
+                           timestamp = excluded.timestamp,
+                           provenance_json = excluded.provenance_json,
+                           status = excluded.status""",
                     (run_id, spec_hash, model_name, dataset_name, provenance_json, status),
                 )
                 self._conn.commit()

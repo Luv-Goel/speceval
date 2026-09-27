@@ -146,6 +146,26 @@ The metrics to compute over the model outputs.
 
 ---
 
+## 🛠️ Extending Metrics
+
+SpecEval is designed to be easily extensible. You can add your own custom metrics by subclassing `BaseMetric`.
+
+```python
+from speceval.metrics.base import BaseMetric
+
+class MyCustomMetric(BaseMetric):
+    @classmethod
+    def name(cls) -> str:
+        return "my_custom_metric"
+
+    def compute(self, expected: str, prediction: str) -> dict[str, float]:
+        score = 1.0 if expected.strip() == prediction.strip() else 0.0
+        return {"score": score}
+```
+Simply register it or ensure it's loaded in your environment, and you can reference it in your YAML spec!
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details. 
