@@ -102,7 +102,7 @@ def _pip_packages() -> list[dict[str, str]]:
     packages: list[dict[str, str]] = []
     seen: set[str] = set()
     for dist in importlib.metadata.distributions():
-        name = dist.metadata.get("Name", "")
+        name = dist.metadata.get("Name", "") # type: ignore
         if not name or name.lower() in seen:
             continue
         seen.add(name.lower())

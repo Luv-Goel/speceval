@@ -61,6 +61,7 @@ class SQLiteStore(ResultStore):
     ) -> None:
         with self._lock:
             self._assert_open()
+            assert self._conn is not None
             try:
                 self._conn.execute(
                     """INSERT INTO results
@@ -84,6 +85,7 @@ class SQLiteStore(ResultStore):
     def get_results(self, run_id: str) -> list[dict[str, Any]]:
         with self._lock:
             self._assert_open()
+            assert self._conn is not None
             try:
                 cursor = self._conn.execute(
                     """SELECT run_id, item_index, input_json, expected, prediction,
@@ -100,6 +102,7 @@ class SQLiteStore(ResultStore):
     def get_runs(self) -> list[dict[str, Any]]:
         with self._lock:
             self._assert_open()
+            assert self._conn is not None
             try:
                 cursor = self._conn.execute(
                     """SELECT id, spec_hash, model_name, dataset_name, timestamp,
@@ -142,6 +145,7 @@ class SQLiteStore(ResultStore):
         """
         with self._lock:
             self._assert_open()
+            assert self._conn is not None
             try:
                 self._conn.execute(
                     """INSERT OR REPLACE INTO runs
@@ -158,6 +162,7 @@ class SQLiteStore(ResultStore):
         """Return a single run record, or *None* if not found."""
         with self._lock:
             self._assert_open()
+            assert self._conn is not None
             try:
                 cursor = self._conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,))
                 row = cursor.fetchone()

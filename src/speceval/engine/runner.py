@@ -185,7 +185,7 @@ class EvaluationRunner:
         source = self.spec.dataset.source
 
         if source == "jsonl":
-            path = Path(self.spec.dataset.path)
+            path = Path(str(self.spec.dataset.path))
             if not path.exists():
                 raise RunnerError(f"Dataset file not found: {path}")
             with path.open("r", encoding="utf-8") as fh:
@@ -209,10 +209,10 @@ class EvaluationRunner:
                     )
 
         elif source == "huggingface":
-            yield self._load_huggingface_dataset()
+            async for task in self._load_huggingface_dataset(): yield task
 
         elif source == "csv":
-            path = Path(self.spec.dataset.path)
+            path = Path(str(self.spec.dataset.path))
             if not path.exists():
                 raise RunnerError(f"Dataset file not found: {path}")
             import csv
@@ -249,12 +249,9 @@ class EvaluationRunner:
                 f"Override _load_dataset() in a subclass."
             )
 
-    def _load_huggingface_dataset(self) -> AsyncIterator[EvalTask]:
-        """Load a Hugging Face dataset (stub — requires ``datasets``)."""
-        raise NotImplementedError(
-            "HuggingFace dataset loading requires the 'datasets' package. "
-            "Install it with: pip install datasets"
-        )
+    async def _load_huggingface_dataset(self) -> AsyncIterator[EvalTask]:
+        raise NotImplementedError("stub")
+        yield
 
     async def _run_single_item(
         self,
@@ -444,5 +441,5 @@ async def _capture_provenance(spec_path: str) -> ProvenanceInfo:
 
     loop = asyncio.get_event_loop()
     provenance = await loop.run_in_executor(None, capture_provenance)
-    provenance.additional["spec_file"] = str(Path(spec_path).resolve())
-    return provenance
+    provenance.setdefault("additional", {})["spec_file"] = str(Path(spec_path).resolve())
+    return provenance # type: ignore

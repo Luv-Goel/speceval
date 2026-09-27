@@ -14,6 +14,9 @@ class ModelAdapter(ABC):
     Subclasses implement :meth:`predict` and optionally override :attr:`metadata`.
     """
 
+    def __init__(self, config: dict) -> None:
+        pass
+
     @abstractmethod
     async def predict(self, inputs: list[dict]) -> list[dict]:
         """Run inference on a batch of inputs and return predictions.
@@ -38,7 +41,7 @@ class ModelAdapter(ABC):
 
     @property
     def metadata(self) -> dict:
-        """Return model/adapter metadata (model name, backend, dtype, …)."""
+        """Return model/adapter metadata (model name, backend, dtype, ...)."""
         return {}
 
 

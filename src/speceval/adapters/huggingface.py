@@ -168,7 +168,7 @@ class HuggingFaceAdapter(ModelAdapter):
 
         return [{"text": text.strip()} for text in decoded]
 
-    def _resolve_dtype(self) -> torch.dtype:
+    def _resolve_dtype(self) -> Any:
         """Map a dtype string to a torch dtype."""
         mapping = {
             "float16": torch.float16,
