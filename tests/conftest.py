@@ -94,7 +94,7 @@ def sample_spec_dict() -> dict[str, Any]:
 
 
 @pytest.fixture
-def temp_dir() -> Path:
+def temp_dir() -> Any:
     """Create a temporary directory for file-based tests."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)

@@ -256,6 +256,7 @@ class TestSQLiteStoreRuns:
         )
 
         run = store.get_run("run_1")
+        assert run is not None
         assert run["status"] == "completed"
 
     def test_save_run_without_init_raises(self):

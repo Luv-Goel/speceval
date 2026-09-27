@@ -102,6 +102,50 @@ report:
 
 ---
 
+## 🛠️ Installation
+
+**From PyPI (Recommended):**
+```bash
+pip install speceval
+```
+
+**From Source (For Development):**
+```bash
+git clone https://github.com/Luv-Goel/speceval.git
+cd speceval
+pip install -e ".[dev]"
+```
+
+---
+
+## ⚙️ Detailed Configuration
+
+SpecEval YAML files are composed of several key sections:
+
+### 1. Dataset
+Defines the source of the data to evaluate against.
+- `path`: HuggingFace dataset path, local CSV, or JSONL.
+- `split`: Which split to use (`train`, `test`, `validation`).
+- `limit`: (Optional) Limit the number of samples for quick smoke testing.
+
+### 2. Models
+A list of models to evaluate. You can mix and match providers.
+- `id`: The model identifier (e.g., `openai/gpt-4o`, `anthropic/claude-3-opus-20240229`).
+- `provider`: The adapter backend (`openai`, `anthropic`, `huggingface`).
+- `params`: Inference parameters (e.g., `temperature`, `max_tokens`).
+
+### 3. Prompt
+The template used to format the dataset rows into a prompt for the models.
+- `template`: A string with placeholder variables (e.g., `{question}`).
+- `variables`: A mapping of template placeholders to dataset column names.
+
+### 4. Metrics
+The metrics to compute over the model outputs.
+- Can be simple strings (e.g., `exact_match`, `bleu`).
+- Or complex objects with parameters for custom behavior.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details. 

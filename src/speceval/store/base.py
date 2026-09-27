@@ -56,7 +56,16 @@ class ResultStore(ABC):
         """
 
     @abstractmethod
-    def save_run(self, *, run_id: str, spec_hash: str, model_name: str, dataset_name: str, provenance_json: str, status: str = "completed") -> None:
+    def save_run(
+        self,
+        *,
+        run_id: str,
+        spec_hash: str,
+        model_name: str,
+        dataset_name: str,
+        provenance_json: str,
+        status: str = "completed",
+    ) -> None:
         pass
 
     @abstractmethod

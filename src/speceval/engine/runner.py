@@ -209,7 +209,8 @@ class EvaluationRunner:
                     )
 
         elif source == "huggingface":
-            async for task in self._load_huggingface_dataset(): yield task
+            async for task in self._load_huggingface_dataset():
+                yield task
 
         elif source == "csv":
             path = Path(str(self.spec.dataset.path))
