@@ -40,7 +40,7 @@ Evaluation today consists of ad-hoc scripts scattered across notebooks, internal
 ## 🏗️ Architecture
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Luv-Goel/speceval/main/docs/assets/speceval_architecture.jpg" alt="SpecEval Architecture" width="80%">
+  <img src="https://raw.githubusercontent.com/Luv-Goel/speceval/main/docs/assets/architecture.svg" alt="SpecEval Architecture Diagram" width="80%">
 </div>
 
 SpecEval acts as an orchestration layer between your datasets, models, and metric engines.
