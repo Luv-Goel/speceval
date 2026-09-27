@@ -23,9 +23,7 @@ def get_cache_dir() -> Path:
     home = Path.home()
     if os.name == "nt":
         return (
-            Path(os.environ.get("LOCALAPPDATA", str(home / "AppData/Local")))
-            / "speceval"
-            / "cache"
+            Path(os.environ.get("LOCALAPPDATA", str(home / "AppData/Local"))) / "speceval" / "cache"
         )
     return home / ".cache" / "speceval"
 
@@ -37,11 +35,7 @@ def get_data_dir() -> Path:
         return Path(xdg) / "speceval"
     home = Path.home()
     if os.name == "nt":
-        return (
-            Path(os.environ.get("APPDATA", str(home / "AppData/Roaming")))
-            / "speceval"
-            / "data"
-        )
+        return Path(os.environ.get("APPDATA", str(home / "AppData/Roaming"))) / "speceval" / "data"
     return home / ".local" / "share" / "speceval"
 
 

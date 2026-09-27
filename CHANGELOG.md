@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- `ENV_API_KEY_PREFIX` typo (`SPECTEVAL_` → `SPECEVAL_`) that caused
-  silent key-resolution failures when using env-var auth (#12)
+### Added
+- Added Anthropic adapter for Claude model evaluations
+- Added comprehensive GitHub workflows (Release and Docs)
+- Added issue and pull request templates
+- Added SECURITY.md and repository asset configurations
+- `normalize=True` kwarg on `exact_match` for case-insensitive /
 - `config.py` `mkdir` calls now catch `OSError` so importing speceval in
   read-only CI containers no longer raises `PermissionError`
 

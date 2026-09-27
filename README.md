@@ -1,9 +1,14 @@
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Luv-Goel/speceval/main/docs/assets/speceval_terminal_demo.jpg" alt="SpecEval Terminal Demo" width="100%">
+</div>
+
 # SpecEval
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Luv-Goel/speceval/ci.yml?branch=main&style=flat-square)](https://github.com/Luv-Goel/speceval/actions)
-[![PyPI](https://img.shields.io/pypi/v/speceval?style=flat-square)](https://pypi.org/project/speceval/)
-[![Python Version](https://img.shields.io/pypi/pyversions/speceval?style=flat-square)](https://pypi.org/project/speceval/)
-[![License](https://img.shields.io/github/license/Luv-Goel/speceval?style=flat-square)](https://github.com/Luv-Goel/speceval/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/Luv-Goel/speceval/ci.yml?branch=main&style=for-the-badge&logo=github)](https://github.com/Luv-Goel/speceval/actions)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-blue?style=for-the-badge&logo=materialformkdocs)](https://Luv-Goel.github.io/speceval/)
+[![PyPI](https://img.shields.io/pypi/v/speceval?style=for-the-badge&logo=pypi)](https://pypi.org/project/speceval/)
+[![Python Version](https://img.shields.io/pypi/pyversions/speceval?style=for-the-badge&logo=python)](https://pypi.org/project/speceval/)
+[![License](https://img.shields.io/github/license/Luv-Goel/speceval?style=for-the-badge)](https://github.com/Luv-Goel/speceval/blob/main/LICENSE)
 
 **Reproducible evaluation specifications for AI systems.**
 
@@ -11,7 +16,7 @@ SpecEval lets you define AI evaluations as version-controlled, auditable, compos
 
 ---
 
-## Quick Start
+## ⚡ Quick Start
 
 Get started with SpecEval in less than a minute:
 
@@ -24,15 +29,35 @@ speceval report my-eval --open
 
 ---
 
-## Why SpecEval?
+## 🎯 Why SpecEval?
 
-Evaluation today is ad-hoc scripts scattered across notebooks, internal dashboards, and undocumented workflows. Every team reinvents the same pipeline — loading models, formatting prompts, scoring outputs — with subtle differences that make results impossible to compare or reproduce. Benchmarks are run once, screenshotted, and forgotten.
+Evaluation today consists of ad-hoc scripts scattered across notebooks, internal dashboards, and undocumented workflows. Every team reinvents the same pipeline — loading models, formatting prompts, scoring outputs — with subtle differences that make results impossible to compare or reproduce. Benchmarks are run once, screenshotted, and forgotten.
 
-SpecEval brings declarative evaluation specifications to AI. You write a single YAML file that describes exactly what to evaluate, which models to test, what metrics to compute, and how to present results. That spec lives in your repository, gets run in CI, and produces portable HTML reports anyone can inspect. Same spec, same results, every time. No hidden randomness, no script drift.
+**SpecEval brings declarative evaluation specifications to AI.** You write a single YAML file that describes exactly what to evaluate, which models to test, what metrics to compute, and how to present results. That spec lives in your repository, gets run in CI, and produces portable HTML reports anyone can inspect. Same spec, same results, every time. No hidden randomness, no script drift.
 
 ---
 
-## Example: GSM8K Math Reasoning
+## 🏗️ Architecture
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Luv-Goel/speceval/main/docs/assets/speceval_architecture.jpg" alt="SpecEval Architecture" width="80%">
+</div>
+
+SpecEval acts as an orchestration layer between your datasets, models, and metric engines.
+
+---
+
+## 🚀 Features
+
+- **Declarative YAML Specs**: Define models, datasets, and metrics in one place.
+- **Multi-Provider Support**: Out-of-the-box adapters for OpenAI, Anthropic, HuggingFace, and vLLM.
+- **Extensible Metrics Engine**: Built-in support for exact match, BLEU, ROUGE, and more. Easily plug in your own.
+- **Reproducible execution**: Locks seeds, tracks prompts, and guarantees consistent evaluation states.
+- **Rich Reporting**: Generate beautiful, interactive HTML reports to share with your team.
+
+---
+
+## 📖 Example: GSM8K Math Reasoning
 
 The following toy spec evaluates two LLMs on grade-school math reasoning and produces a head-to-head comparison report in one command:
 
@@ -75,162 +100,22 @@ report:
   include: [scores, examples]
 ```
 
-Run it:
-
-```bash
-speceval run speceval.yaml
-# ✔ Loaded 50 samples from GSM8K (main, test)
-# ✔ Queried openai/gpt-4o: 50/50
-# ✔ Queried anthropic/claude-3-opus-20240229: 50/50
-# ✔ Computed metrics: exact_match, numeric_match
-# ✔ Report written to gsm8k-demo-report.html
-```
-
-Sample output:
-
-| Model | Exact Match | Numeric Match |
-|-------|-------------|---------------|
-| openai/gpt-4o | 0.88 | 0.92 |
-| anthropic/claude-3-opus | 0.84 | 0.89 |
-
-> The spec above is checked into version control. Re-running it 6 months later on the same dataset split produces identical scores — no hidden randomness.
-
 ---
 
-## Key Features
+## 🤝 Contributing
 
-- **Declarative specs** — One YAML file defines the entire evaluation pipeline.
-- **Reproducible by default** — Deterministic seeding, pinned datasets, full provenance logging.
-- **Model-agnostic** — Works with OpenAI, Anthropic, open-source models (vLLM, Ollama), and local model servers.
-- **Built-in metrics** — Exact match, numeric match, pass@k, BLEU, ROUGE, LLM-as-judge, and custom Python metrics.
-- **Comparison engine** — Head-to-head model comparisons with statistical significance tests.
-- **CI-ready** — Run evaluation specs directly in GitHub Actions, GitLab CI, or any CI system.
-- **Portable reports** — Self-contained HTML reports with interactive charts, confusion matrices, and per-example breakdowns.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for more details. 
 
----
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Full Spec Reference
+## 🛡️ Security
 
-```yaml
-# speceval.yaml — evaluate on GSM8K
-name: gsm8k-eval
-description: Grade-school math reasoning benchmark
+If you discover any security related issues, please refer to our [Security Policy](SECURITY.md) and report it accordingly.
 
-dataset:
-  path: speceval/gsm8k
-  split: test
-  subset: main  # GSM8K main (5-shot) subset
+## 📄 License
 
-models:
-  - id: openai/gpt-4o
-    provider: openai
-    params:
-      temperature: 0
-      max_tokens: 1024
-  - id: anthropic/claude-3-opus-20240229
-    provider: anthropic
-    params:
-      temperature: 0
-      max_tokens: 1024
-
-prompt:
-  template: |
-    Solve the following math problem step by step.
-
-    {question}
-
-    Answer:
-  variables:
-    question: question
-
-metrics:
-  - exact_match
-  - numeric_match
-  - pass_at_1
-
-comparisons:
-  - model_a: openai/gpt-4o
-    model_b: anthropic/claude-3-opus-20240229
-    metric: exact_match
-    method: pairwise
-
-report:
-  format: html
-  output: report.html
-  include: [scores, comparisons, examples]
-```
-
----
-
-## Quick Tutorial
-
-Evaluate GPT-4o and Claude on GSM8K:
-
-```bash
-# Initialize a new evaluation spec
-speceval init gsm8k-eval
-
-# Run the evaluation (downloads datasets, queries models, computes scores)
-speceval run gsm8k-eval/speceval.yaml
-
-# View the report
-speceval report gsm8k-eval --open
-```
-
-The `speceval run` command will:
-1. Download the GSM8K dataset (main subset).
-2. Query each model with 5-shot prompts.
-3. Compute exact match and numeric match scores.
-4. Generate a pairwise comparison between both models.
-5. Write results and a full HTML report to the output directory.
-
-Open the report to see per-model accuracy, error breakdowns, and side-by-side examples where the models disagreed.
-
----
-
-## Installation
-
-```bash
-pip install speceval
-```
-
-Requires Python 3.10+.
-
-For development:
-
-```bash
-git clone https://github.com/Luv-Goel/speceval.git
-cd speceval
-pip install -e ".[dev]"
-```
-
----
-
-## Documentation
-
-Full documentation is available at: Coming Soon
-
----
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style guidelines, and pull request process.
-
----
-
-## Citation
-
-```bibtex
-@software{speceval2025,
-  author = {Goel, Luv},
-  title = {SpecEval: Reproducible Evaluation Specifications for AI Systems},
-  year = {2026},
-  url = {https://github.com/Luv-Goel/speceval}
-}
-```
-
----
-
-## License
-
-Apache 2.0. See [LICENSE](LICENSE).
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.

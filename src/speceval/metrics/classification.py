@@ -41,8 +41,7 @@ def accuracy(predictions: list[str], references: list[str], **kwargs: Any) -> fl
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -66,8 +65,7 @@ def precision(predictions: list[str], references: list[str], **kwargs: Any) -> f
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -89,8 +87,7 @@ def recall(predictions: list[str], references: list[str], **kwargs: Any) -> floa
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -112,8 +109,7 @@ def f1_score(predictions: list[str], references: list[str], **kwargs: Any) -> fl
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -158,4 +154,4 @@ def _macro_binary_metric(
     return float(np.mean(scores)) if scores else 0.0
 
 
-__all__ = ["accuracy", "precision", "recall", "f1_score"]
+__all__ = ["accuracy", "f1_score", "precision", "recall"]

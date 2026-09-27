@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +74,7 @@ class ModelAdapterFactory:
         if adapter_cls is None:
             available = ", ".join(sorted(cls._registry))
             raise KeyError(
-                f"Unknown adapter backend '{backend}'. "
-                f"Registered backends: [{available}]"
+                f"Unknown adapter backend '{backend}'. Registered backends: [{available}]"
             )
         logger.info("Creating %s adapter for model '%s'", backend, config.get("model", ""))
         return adapter_cls(config)

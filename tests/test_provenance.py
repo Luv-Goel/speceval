@@ -3,10 +3,7 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 from speceval.provenance import ProvenanceInfo
 from speceval.provenance.environment import (
@@ -111,7 +108,7 @@ class TestCaptureProvenance:
 
     def test_include_pip_false(self):
         """With include_pip=False, pip_packages may be absent or None."""
-        info = capture_provenance(include_pip=False)
+        capture_provenance(include_pip=False)
         # It's implementation-defined; check it doesn't raise
         assert True
 
@@ -153,6 +150,7 @@ class TestGitCommit:
     def test_git_commit_timeout(self, mock_run):
         """Git commit returns None on timeout."""
         import subprocess
+
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="git", timeout=5)
 
         result = _git_commit(cwd=None)
@@ -209,6 +207,7 @@ class TestGpuInfo:
     def test_nvidia_smi_timeout(self, mock_run, mock_which):
         """GPU info returns None on timeout."""
         import subprocess
+
         mock_which.return_value = "/usr/bin/nvidia-smi"
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="nvidia-smi", timeout=10)
 

@@ -1,70 +1,90 @@
-# SpecEval
-
-[![CI](https://img.shields.io/github/actions/workflow/status/Luv-Goel/speceval/ci.yml?branch=main&style=flat-square)](https://github.com/Luv-Goel/speceval/actions)
-[![PyPI](https://img.shields.io/pypi/v/speceval?style=flat-square)](https://pypi.org/project/speceval/)
-[![Python Version](https://img.shields.io/pypi/pyversions/speceval?style=flat-square)](https://pypi.org/project/speceval/)
-[![License](https://img.shields.io/github/license/Luv-Goel/speceval?style=flat-square)](https://github.com/Luv-Goel/speceval/blob/main/LICENSE)
+# Welcome to SpecEval
 
 **Reproducible evaluation specifications for AI systems.**
 
+SpecEval is a framework that lets you define AI evaluations as version-controlled, auditable, and composable YAML. It promotes reproducibility and rigour in ML research workflows.
+
+<figure>
+  <img src="assets/speceval_architecture.jpg" alt="SpecEval Architecture" />
+  <figcaption>SpecEval Architecture Diagram</figcaption>
+</figure>
+
 ---
 
-## Quick Start
+## 🎯 Why SpecEval?
+
+Evaluation today consists of ad-hoc scripts scattered across notebooks, internal dashboards, and undocumented workflows. Every team reinvents the same pipeline — loading models, formatting prompts, scoring outputs — with subtle differences that make results impossible to compare or reproduce.
+
+**SpecEval brings declarative evaluation specifications to AI.** You write a single YAML file that describes exactly what to evaluate, which models to test, what metrics to compute, and how to present results. 
+
+That spec lives in your repository, gets run in CI, and produces portable HTML reports anyone can inspect. Same spec, same results, every time. No hidden randomness, no script drift.
+
+---
+
+## ⚡ Quick Start
+
+Get started with SpecEval in less than a minute.
+
+=== "pip"
+    ```bash
+    pip install speceval
+    ```
+    
+=== "poetry"
+    ```bash
+    poetry add speceval
+    ```
+
+Once installed, use the CLI to initialize and run your first evaluation:
 
 ```bash
-pip install speceval
 speceval init my-eval
 speceval run my-eval/speceval.yaml
 speceval report my-eval --open
 ```
 
-For development, use the Makefile shortcuts:
-
-```bash
-git clone https://github.com/Luv-Goel/speceval.git
-cd speceval
-make install          # pip install -e '.[dev]'
-make install-hooks    # set up pre-commit hooks
-make ci               # lint → typecheck → test (mirrors GitHub Actions)
-```
+<figure>
+  <img src="assets/speceval_terminal_demo.jpg" alt="SpecEval Terminal Demo" />
+  <figcaption>Running an evaluation using the CLI</figcaption>
+</figure>
 
 ---
 
-## Why SpecEval?
+## 🚀 Features
 
-Evaluation today is ad-hoc scripts scattered across notebooks, internal dashboards, and undocumented workflows. Every team reinvents the same pipeline — loading models, formatting prompts, scoring outputs — with subtle differences that make results impossible to compare or reproduce. Benchmarks are run once, screenshotted, and forgotten.
-
-SpecEval brings declarative evaluation specifications to AI. You write a single YAML file that describes exactly what to evaluate, which models to test, what metrics to compute, and how to present results. That spec lives in your repository, gets run in CI, and produces portable HTML reports anyone can inspect. Same spec, same results, every time. No hidden randomness, no script drift.
+- **Declarative YAML Specs**: Define models, datasets, and metrics in one place.
+- **Multi-Provider Support**: Out-of-the-box adapters for `openai`, `anthropic`, `huggingface`, and `vllm`.
+- **Extensible Metrics Engine**: Built-in support for exact match, BLEU, ROUGE, precision, recall, and more. Easily plug in your own custom metric functions.
+- **Reproducible Execution**: Locks seeds, tracks prompts, and guarantees consistent evaluation states.
+- **Rich Reporting**: Generate beautiful, interactive HTML reports to share with your team.
 
 ---
 
-## Example Spec
+## 📖 Example: GSM8K Math Reasoning
 
-```yaml
-# speceval.yaml — evaluate on GSM8K
-name: gsm8k-eval
-description: Grade-school math reasoning benchmark
+The following spec evaluates two LLMs on grade-school math reasoning and produces a head-to-head comparison report in one command:
+
+```yaml title="speceval.yaml"
+name: gsm8k-mini-demo
+description: Comparing GPT-4o vs Claude on 50 GSM8K samples
 
 dataset:
   path: speceval/gsm8k
   split: test
   subset: main
+  limit: 50  # quick smoke-test
 
 models:
   - id: openai/gpt-4o
     provider: openai
-    params:
-      temperature: 0
-      max_tokens: 1024
+    params: { temperature: 0, max_tokens: 512 }
   - id: anthropic/claude-3-opus-20240229
     provider: anthropic
-    params:
-      temperature: 0
-      max_tokens: 1024
+    params: { temperature: 0, max_tokens: 512 }
 
 prompt:
   template: |
-    Solve the following math problem step by step.
+    Solve step by step.
 
     {question}
 
@@ -75,44 +95,29 @@ prompt:
 metrics:
   - exact_match
   - numeric_match
-  - pass_at_1
-
-comparisons:
-  - model_a: openai/gpt-4o
-    model_b: anthropic/claude-3-opus-20240229
-    metric: exact_match
-    method: pairwise
 
 report:
   format: html
-  output: report.html
-  include: [scores, comparisons, examples]
+  output: gsm8k-demo-report.html
+  include: [scores, examples]
 ```
 
 ---
 
-## Key Features
+## 🤝 Contributing
 
-- **Declarative specs** — One YAML file defines the entire evaluation pipeline.
-- **Reproducible by default** — Deterministic seeding, pinned datasets, full provenance logging.
-- **Model-agnostic** — Works with OpenAI, Anthropic, open-source models (vLLM, Ollama), and local model servers.
-- **Built-in metrics** — Exact match, numeric match, pass@k, BLEU, ROUGE, LLM-as-judge, and custom Python metrics.
-- **Comparison engine** — Head-to-head model comparisons with statistical significance tests.
-- **CI-ready** — Run evaluation specs directly in any CI system.
-- **Portable reports** — Self-contained HTML reports with interactive charts and per-example breakdowns.
+We welcome contributions! Please see our Contributing Guide for more details. 
 
----
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Installation
+## 🛡️ Security
 
-```bash
-pip install speceval
-```
+If you discover any security related issues, please report them to the maintainers privately via GitHub Security Advisories or via email. See `SECURITY.md`.
 
-Requires Python 3.10+.
+## 📄 License
 
----
-
-## License
-
-Apache 2.0.
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.

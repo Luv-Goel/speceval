@@ -8,13 +8,11 @@ import pytest
 
 from speceval.spec.hash import hash_spec, hash_spec_from_path
 from speceval.spec.model import (
-    AssertionConfig,
     DatasetConfig,
     MetricConfig,
     ModelConfig,
     SpecConfig,
 )
-from speceval.spec.parse import parse_spec_string, spec_to_yaml
 
 
 class TestHashSpec:

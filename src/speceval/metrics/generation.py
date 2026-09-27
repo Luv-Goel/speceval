@@ -41,8 +41,7 @@ def exact_match(
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -51,6 +50,7 @@ def exact_match(
         s = s.strip()
         if normalize:
             import string
+
             s = s.strip(string.punctuation).lower()
         return s
 
@@ -143,8 +143,7 @@ def bleu(predictions: list[str], references: list[str], **kwargs: Any) -> float:
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -193,8 +192,7 @@ def rouge_l(predictions: list[str], references: list[str], **kwargs: Any) -> flo
     """
     if len(predictions) != len(references):
         raise ValueError(
-            f"predictions and references length mismatch: "
-            f"{len(predictions)} vs {len(references)}"
+            f"predictions and references length mismatch: {len(predictions)} vs {len(references)}"
         )
     if len(predictions) == 0:
         return 0.0
@@ -263,4 +261,4 @@ def perplexity(predictions: list[str], references: list[str], **kwargs: Any) -> 
     return float(np.exp(avg_neg_log_lik))
 
 
-__all__ = ["exact_match", "bleu", "rouge_l", "perplexity"]
+__all__ = ["bleu", "exact_match", "perplexity", "rouge_l"]

@@ -13,15 +13,14 @@ from __future__ import annotations
 
 import os
 import re
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from speceval.spec.model import SpecConfig
 
 _ENV_VAR_PATTERN = re.compile(r"\$\{([^}]+)\}|\$([A-Za-z_][A-Za-z0-9_]*)")
 
 
-def _resolve_env_vars(value: Any, env: Optional[Dict[str, str]] = None) -> Any:
+def _resolve_env_vars(value: Any, env: dict[str, str] | None = None) -> Any:
     """Recursively substitute ``$VAR`` and ``${VAR}`` in string values.
 
     Uses *env* if provided, otherwise falls back to ``os.environ``.
@@ -39,8 +38,7 @@ def _resolve_env_vars(value: Any, env: Optional[Dict[str, str]] = None) -> Any:
             resolved = env.get(var)
             if resolved is None:
                 raise ValueError(
-                    f"Environment variable {var!r} is not set "
-                    f"(referenced in spec resolution)"
+                    f"Environment variable {var!r} is not set (referenced in spec resolution)"
                 )
             return resolved
 
@@ -55,9 +53,7 @@ def _resolve_env_vars(value: Any, env: Optional[Dict[str, str]] = None) -> Any:
     return value
 
 
-def _resolve_dict(
-    d: Dict[str, Any], env: Optional[Dict[str, str]] = None
-) -> Dict[str, Any]:
+def _resolve_dict(d: dict[str, Any], env: dict[str, str] | None = None) -> dict[str, Any]:
     """Return a new dict with env-var substitution applied recursively."""
     return _resolve_env_vars(d, env)  # type: ignore[return-value]
 
@@ -65,7 +61,7 @@ def _resolve_dict(
 def resolve_spec(
     spec: SpecConfig,
     resolve_env: bool = True,
-    env: Optional[Dict[str, str]] = None,
+    env: dict[str, str] | None = None,
 ) -> SpecConfig:
     """Resolve runtime values in a ``SpecConfig`` and return a new instance.
 
@@ -88,7 +84,7 @@ def resolve_spec(
     Returns:
         A new ``SpecConfig`` with resolved values.
     """
-    data: Dict[str, Any] = spec.model_dump(mode="python")
+    data: dict[str, Any] = spec.model_dump(mode="python")
 
     if resolve_env:
         data = _resolve_dict(data, env)

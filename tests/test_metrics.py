@@ -7,6 +7,7 @@ import math
 import numpy as np
 import pytest
 
+from speceval.exceptions import MetricError
 from speceval.metrics import (
     compute_metric,
     get,
@@ -32,8 +33,6 @@ from speceval.metrics.generation import (
     perplexity,
     rouge_l,
 )
-from speceval.exceptions import MetricError
-
 
 # Ensure built-in metrics are registered once for the entire module
 _registered_metrics = False
@@ -243,9 +242,7 @@ class TestExactMatch:
     def test_normalize_case_insensitive(self):
         """normalize=True should treat 'Hello' and 'hello' as equal."""
         result = exact_match(["Hello World"], ["hello world"], normalize=True)
-        assert result == 1.0, (
-            "normalize=True must lower-case both sides before comparing"
-        )
+        assert result == 1.0, "normalize=True must lower-case both sides before comparing"
 
     def test_normalize_strips_punctuation(self):
         """normalize=True strips leading/trailing punctuation differences."""

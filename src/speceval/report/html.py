@@ -140,4 +140,4 @@ def _aggregate_metrics(results: list[dict[str, Any]]) -> dict[str, dict[str, flo
     return aggregated
 
 
-__all__ = ["generate_html_report", "generate_comparison_report"]
+__all__ = ["generate_comparison_report", "generate_html_report"]

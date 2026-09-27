@@ -11,7 +11,6 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from speceval.exceptions import SpecParseError
 from speceval.spec.model import SpecConfig
 from speceval.spec.parse import parse_spec, spec_to_yaml
 

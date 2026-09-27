@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
-from scipy import stats as _sp_stats
 
 from speceval.exceptions import CompareError
 from speceval.store.base import ResultStore
@@ -90,9 +89,7 @@ def compare_runs(
         samples_b = np.array(metrics_b[metric], dtype=np.float64)
 
         deltas[metric] = compute_deltas(samples_a, samples_b)
-        significance[metric] = bootstrap_significance(
-            samples_a, samples_b, n_resamples=n_resamples
-        )
+        significance[metric] = bootstrap_significance(samples_a, samples_b, n_resamples=n_resamples)
         effect_sizes[metric] = cohens_d(samples_a, samples_b)
 
     return ComparisonResult(
@@ -235,8 +232,8 @@ def _aggregate_metrics(
 
 __all__ = [
     "ComparisonResult",
-    "compare_runs",
-    "compute_deltas",
     "bootstrap_significance",
     "cohens_d",
+    "compare_runs",
+    "compute_deltas",
 ]

@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from speceval.engine.runner import EvaluationRunner, get_runner
-from speceval.engine.task import EvalResult, EvalTask
+from speceval.engine.task import EvalTask
 from speceval.exceptions import RunnerError
 from speceval.provenance import ProvenanceInfo
 from speceval.spec.model import (
@@ -27,10 +27,13 @@ def basic_spec() -> SpecConfig:
     return SpecConfig(
         name="runner-test",
         model=ModelConfig(provider="openai", name="gpt-4o-mini"),
-        dataset=DatasetConfig(source="dict", path=[
-            {"input": {"prompt": "Hello"}, "expected": "Hi"},
-            {"input": {"prompt": "Goodbye"}, "expected": "Bye"},
-        ]),
+        dataset=DatasetConfig(
+            source="dict",
+            path=[
+                {"input": {"prompt": "Hello"}, "expected": "Hi"},
+                {"input": {"prompt": "Goodbye"}, "expected": "Bye"},
+            ],
+        ),
         metrics=[MetricConfig(name="exact_match")],
         trials=1,
     )
@@ -60,9 +63,7 @@ def provenance() -> ProvenanceInfo:
 def mock_adapter():
     """Return an async mock adapter."""
     adapter = MagicMock()
-    adapter.predict = AsyncMock(
-        return_value=[{"text": "mock response"}]
-    )
+    adapter.predict = AsyncMock(return_value=[{"text": "mock response"}])
     adapter.metadata = {"model": "mock"}
     return adapter
 
@@ -75,6 +76,7 @@ class TestEvaluationRunner:
         """Basic run executes without error and returns a run_id."""
         # Register metrics
         from speceval.metrics import register_all
+
         register_all()
 
         runner = EvaluationRunner(
@@ -94,6 +96,7 @@ class TestEvaluationRunner:
     async def test_run_id_unique(self, basic_spec, sqlite_store, provenance, mock_adapter):
         """Each run produces a unique run_id."""
         from speceval.metrics import register_all
+
         register_all()
 
         runner = EvaluationRunner(spec=basic_spec, store=sqlite_store, provenance=provenance)
@@ -105,6 +108,7 @@ class TestEvaluationRunner:
     async def test_run_metadata_saved(self, basic_spec, sqlite_store, provenance, mock_adapter):
         """Run metadata is saved to store."""
         from speceval.metrics import register_all
+
         register_all()
 
         runner = EvaluationRunner(spec=basic_spec, store=sqlite_store, provenance=provenance)
@@ -120,14 +124,18 @@ class TestEvaluationRunner:
     async def test_run_with_trials(self, mock_adapter, provenance, sqlite_store):
         """Multiple trials are each executed."""
         from speceval.metrics import register_all
+
         register_all()
 
         spec = SpecConfig(
             name="trials-test",
             model=ModelConfig(provider="openai", name="gpt-4"),
-            dataset=DatasetConfig(source="dict", path=[
-                {"input": {"prompt": "Hi"}, "expected": "Hello"},
-            ]),
+            dataset=DatasetConfig(
+                source="dict",
+                path=[
+                    {"input": {"prompt": "Hi"}, "expected": "Hello"},
+                ],
+            ),
             metrics=[MetricConfig(name="exact_match")],
             trials=3,
         )
@@ -141,6 +149,7 @@ class TestEvaluationRunner:
     async def test_run_empty_dataset_raises(self, provenance, sqlite_store, mock_adapter):
         """Empty dataset raises RunnerError."""
         from speceval.metrics import register_all
+
         register_all()
 
         spec = SpecConfig(
@@ -157,6 +166,7 @@ class TestEvaluationRunner:
     async def test_adapter_predict_called(self, basic_spec, sqlite_store, provenance):
         """Adapter.predict is called with correct inputs."""
         from speceval.metrics import register_all
+
         register_all()
 
         adapter = MagicMock()
@@ -172,9 +182,12 @@ class TestEvaluationRunner:
         assert first_call_args == [{"prompt": "Hello"}]
 
     @pytest.mark.asyncio
-    async def test_result_contains_metrics(self, basic_spec, sqlite_store, provenance, mock_adapter):
+    async def test_result_contains_metrics(
+        self, basic_spec, sqlite_store, provenance, mock_adapter
+    ):
         """Results contain computed metrics."""
         from speceval.metrics import register_all
+
         register_all()
 
         runner = EvaluationRunner(spec=basic_spec, store=sqlite_store, provenance=provenance)
@@ -189,6 +202,7 @@ class TestEvaluationRunner:
     async def test_adapter_failure_handled(self, basic_spec, sqlite_store, provenance):
         """Adapter failure is caught and recorded as error result."""
         from speceval.metrics import register_all
+
         register_all()
 
         # Override error_tolerance to avoid abort on first failure
@@ -209,10 +223,11 @@ class TestEvaluationRunner:
     async def test_csv_dataset(self, temp_dir: Path, provenance, sqlite_store, mock_adapter):
         """Runner handles CSV dataset source."""
         from speceval.metrics import register_all
+
         register_all()
 
         csv_file = temp_dir / "test.csv"
-        csv_file.write_text("input,expected\n{\"prompt\":\"a\"},x\n{\"prompt\":\"b\"},y\n")
+        csv_file.write_text('input,expected\n{"prompt":"a"},x\n{"prompt":"b"},y\n')
 
         spec = SpecConfig(
             name="csv-test",
@@ -230,12 +245,15 @@ class TestEvaluationRunner:
     async def test_jsonl_dataset(self, temp_dir: Path, provenance, sqlite_store, mock_adapter):
         """Runner handles JSONL dataset source."""
         from speceval.metrics import register_all
+
         register_all()
 
         jsonl_file = temp_dir / "test.jsonl"
         jsonl_file.write_text(
-            json.dumps({"input": {"prompt": "q1"}, "expected": "a1"}) + "\n" +
-            json.dumps({"input": {"prompt": "q2"}, "expected": "a2"}) + "\n"
+            json.dumps({"input": {"prompt": "q1"}, "expected": "a1"})
+            + "\n"
+            + json.dumps({"input": {"prompt": "q2"}, "expected": "a2"})
+            + "\n"
         )
 
         spec = SpecConfig(
@@ -254,6 +272,7 @@ class TestEvaluationRunner:
     async def test_csv_file_not_found(self, provenance, sqlite_store, mock_adapter):
         """Runner raises error when CSV file doesn't exist."""
         from speceval.metrics import register_all
+
         register_all()
 
         spec = SpecConfig(
@@ -270,6 +289,7 @@ class TestEvaluationRunner:
     async def test_jsonl_file_not_found(self, provenance, sqlite_store, mock_adapter):
         """Runner raises error when JSONL file doesn't exist."""
         from speceval.metrics import register_all
+
         register_all()
 
         spec = SpecConfig(
@@ -310,6 +330,7 @@ class TestEvaluationRunner:
 async def test_get_runner(temp_dir: Path):
     """get_runner factory works with a valid spec file."""
     from speceval.metrics import register_all
+
     register_all()
 
     spec_file = temp_dir / "test_spec.yaml"

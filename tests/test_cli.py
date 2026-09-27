@@ -76,18 +76,21 @@ class TestCliInit:
     def test_init_interactive(self, runner: CliRunner, temp_dir: Path):
         """Init with --interactive prompts for config."""
         target = temp_dir / "speceval.yaml"
-        inputs = "\n".join([
-            "openai",          # provider
-            "gpt-4",           # model
-            "huggingface",     # dataset source
-            "test/dataset",    # dataset path
-            "test",            # split
-            "{question}",      # input template
-            "answer",          # reference field
-            "exact_match,bleu",  # metrics
-        ])
+        inputs = "\n".join(
+            [
+                "openai",  # provider
+                "gpt-4",  # model
+                "huggingface",  # dataset source
+                "test/dataset",  # dataset path
+                "test",  # split
+                "{question}",  # input template
+                "answer",  # reference field
+                "exact_match,bleu",  # metrics
+            ]
+        )
         result = runner.invoke(
-            app, ["init", "--path", str(target), "--interactive"],
+            app,
+            ["init", "--path", str(target), "--interactive"],
             input=inputs,
         )
         assert result.exit_code == 0
@@ -134,8 +137,9 @@ class TestCliRun:
     @patch("speceval.store.sqlite.SQLiteStore")
     @patch("speceval.provenance.environment.capture_provenance")
     @patch("speceval.metrics.register_all")
-    def test_run_with_valid_spec(self, mock_register, mock_prov, mock_store,
-                                  runner: CliRunner, temp_spec_file: Path):
+    def test_run_with_valid_spec(
+        self, mock_register, mock_prov, mock_store, runner: CliRunner, temp_spec_file: Path
+    ):
         """Valid spec runs successfully."""
         mock_prov.return_value = {"test": True}
         mock_store_instance = MagicMock()
@@ -160,8 +164,9 @@ class TestCliRun:
     @patch("speceval.store.sqlite.SQLiteStore")
     @patch("speceval.provenance.environment.capture_provenance")
     @patch("speceval.metrics.register_all")
-    def test_run_with_overrides(self, mock_register, mock_prov, mock_store,
-                                 runner: CliRunner, temp_dir: Path):
+    def test_run_with_overrides(
+        self, mock_register, mock_prov, mock_store, runner: CliRunner, temp_dir: Path
+    ):
         """Run with --trials and --output overrides work."""
         spec_file = temp_dir / "spec.yaml"
         spec_file.write_text("""name: override-test
@@ -188,11 +193,18 @@ trials: 2
         mock_store.return_value = mock_store_instance
 
         out_dir = temp_dir / "output"
-        result = runner.invoke(app, [
-            "run", "--spec", str(spec_file),
-            "--output", str(out_dir),
-            "--trials", "3",
-        ])
+        result = runner.invoke(
+            app,
+            [
+                "run",
+                "--spec",
+                str(spec_file),
+                "--output",
+                str(out_dir),
+                "--trials",
+                "3",
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -201,8 +213,7 @@ class TestCliCompare:
 
     @patch("speceval.store.sqlite.SQLiteStore")
     @patch("speceval.compare.delta.compare_runs")
-    def test_compare_two_runs(self, mock_compare_runs, mock_store,
-                               runner: CliRunner):
+    def test_compare_two_runs(self, mock_compare_runs, mock_store, runner: CliRunner):
         """Compare command displays comparison results."""
         from speceval.compare.delta import ComparisonResult
 
@@ -225,8 +236,7 @@ class TestCliCompare:
 
     @patch("speceval.store.sqlite.SQLiteStore")
     @patch("speceval.compare.delta.compare_runs")
-    def test_compare_failure(self, mock_compare_runs, mock_store,
-                              runner: CliRunner):
+    def test_compare_failure(self, mock_compare_runs, mock_store, runner: CliRunner):
         """Compare with failing comparison reports error."""
         mock_compare_runs.side_effect = Exception("Something went wrong")
         mock_store_instance = MagicMock()
@@ -281,10 +291,20 @@ class TestCliList:
         """List with runs displays them."""
         mock_store_instance = MagicMock()
         mock_store_instance.get_runs.return_value = [
-            {"id": "run1", "model_name": "gpt-4", "dataset_name": "test",
-             "timestamp": "2024-01-01", "status": "completed"},
-            {"id": "run2", "model_name": "gpt-3.5", "dataset_name": "test2",
-             "timestamp": "2024-01-02", "status": "running"},
+            {
+                "id": "run1",
+                "model_name": "gpt-4",
+                "dataset_name": "test",
+                "timestamp": "2024-01-01",
+                "status": "completed",
+            },
+            {
+                "id": "run2",
+                "model_name": "gpt-3.5",
+                "dataset_name": "test2",
+                "timestamp": "2024-01-02",
+                "status": "running",
+            },
         ]
         mock_store.return_value = mock_store_instance
 

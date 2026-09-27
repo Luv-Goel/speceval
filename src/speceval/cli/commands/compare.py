@@ -29,9 +29,9 @@ def run(
 
     Displays metric deltas, bootstrap p-values, and Cohen's d effect sizes.
     """
+    from speceval.compare.delta import compare_runs
     from speceval.config import DEFAULT_STORE_PATH
     from speceval.store.sqlite import SQLiteStore
-    from speceval.compare.delta import compare_runs
 
     store = SQLiteStore(DEFAULT_STORE_PATH)
     store.init_store()
@@ -59,11 +59,7 @@ def run(
         d = result.metric_deltas[metric]
         p = result.significance[metric]
         es = result.effect_sizes[metric]
-        sig = (
-            "[green]p < 0.05[/green]"
-            if p < 0.05
-            else "[yellow]not sig.[/yellow]"
-        )
+        sig = "[green]p < 0.05[/green]" if p < 0.05 else "[yellow]not sig.[/yellow]"
         delta_str = f"{d:+.4f}"
         if d > 0:
             delta_str = f"[green]{delta_str}[/green]"

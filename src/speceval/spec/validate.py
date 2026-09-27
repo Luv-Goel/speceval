@@ -45,29 +45,21 @@ def validate_spec(spec: SpecConfig) -> list[str]:
         )
 
     if spec.model.provider == "custom" and not spec.model.endpoint:
-        warnings.append(
-            "model.provider is 'custom' but no model.endpoint is set."
-        )
+        warnings.append("model.provider is 'custom' but no model.endpoint is set.")
 
     # -- dataset checks -----------------------------------------------------
     ds = spec.dataset
 
     if ds.source in FILE_SOURCES:
         if not ds.path:
-            warnings.append(
-                f"dataset.path is required when source is {ds.source!r}."
-            )
+            warnings.append(f"dataset.path is required when source is {ds.source!r}.")
 
     if ds.source == "huggingface":
         if not ds.path:
-            warnings.append(
-                "dataset.path is required when source is 'huggingface'."
-            )
+            warnings.append("dataset.path is required when source is 'huggingface'.")
 
     if ds.limit is not None and ds.limit < 1:
-        warnings.append(
-            f"dataset.limit must be a positive integer, got {ds.limit}."
-        )
+        warnings.append(f"dataset.limit must be a positive integer, got {ds.limit}.")
 
     # -- metrics checks -----------------------------------------------------
     if not spec.metrics:
@@ -88,9 +80,7 @@ def validate_spec(spec: SpecConfig) -> list[str]:
         for key in seeds:
             lower = key.lower()
             if lower in seen:
-                warnings.append(
-                    f"Duplicate seed key (case-insensitive): {key!r}."
-                )
+                warnings.append(f"Duplicate seed key (case-insensitive): {key!r}.")
             seen.add(lower)
 
     if spec.env and spec.env.seeds:
@@ -98,9 +88,7 @@ def validate_spec(spec: SpecConfig) -> list[str]:
         for key in spec.env.seeds:
             lower = key.lower()
             if lower in seen_env:
-                warnings.append(
-                    f"Duplicate env.seeds key (case-insensitive): {key!r}."
-                )
+                warnings.append(f"Duplicate env.seeds key (case-insensitive): {key!r}.")
             seen_env.add(lower)
 
     # -- assertions checks --------------------------------------------------
@@ -127,7 +115,5 @@ def validate_spec_strict(spec: SpecConfig) -> None:
     """
     warnings = validate_spec(spec)
     if warnings:
-        msg = "Specification validation failed:\n" + "\n".join(
-            f"  - {w}" for w in warnings
-        )
+        msg = "Specification validation failed:\n" + "\n".join(f"  - {w}" for w in warnings)
         raise SpecValidationError(msg)

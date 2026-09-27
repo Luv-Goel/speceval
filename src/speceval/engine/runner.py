@@ -8,8 +8,9 @@ import json
 import logging
 import time
 import uuid
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any
 
 from rich.console import Console
 from rich.progress import (
@@ -23,7 +24,8 @@ from rich.progress import (
 
 from speceval.engine.task import EvalResult, EvalTask
 from speceval.exceptions import RunnerError
-from speceval.metrics import compute_metric, list_metrics as list_registered_metrics
+from speceval.metrics import compute_metric
+from speceval.metrics import list_metrics as list_registered_metrics
 from speceval.provenance import ProvenanceInfo
 from speceval.spec.model import SpecConfig
 from speceval.store.base import ResultStore
@@ -258,7 +260,7 @@ class EvaluationRunner:
         self,
         task: EvalTask,
         adapter: Any,
-        trial: int,  # noqa: ARG002
+        trial: int,
     ) -> EvalResult:
         """Execute one evaluation item through the model adapter."""
         start = time.monotonic()
@@ -335,9 +337,7 @@ class EvaluationRunner:
 
         def _sync() -> None:
             self.store.init_store()
-            spec_hash = hashlib.sha256(
-                self.spec.model_dump_json().encode()
-            ).hexdigest()[:12]
+            spec_hash = hashlib.sha256(self.spec.model_dump_json().encode()).hexdigest()[:12]
             try:
                 self.store.save_run(
                     run_id=run_id,

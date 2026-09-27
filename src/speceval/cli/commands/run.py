@@ -9,8 +9,8 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
 console = Console()
 
@@ -53,6 +53,7 @@ def run(
     # Load spec
     try:
         import yaml
+
         raw = spec_path.read_text(encoding="utf-8")
         data = yaml.safe_load(raw)
     except Exception as exc:
@@ -82,8 +83,8 @@ def run(
 
     # Store
     from speceval.config import DEFAULT_STORE_PATH
-    from speceval.store.sqlite import SQLiteStore
     from speceval.provenance.environment import capture_provenance
+    from speceval.store.sqlite import SQLiteStore
 
     store = SQLiteStore(DEFAULT_STORE_PATH)
     store.init_store()
@@ -93,6 +94,7 @@ def run(
 
     # Register metrics
     from speceval.metrics import register_all
+
     register_all()
 
     # Save run metadata
@@ -131,6 +133,7 @@ def run(
 
             # Compute metrics
             from speceval.metrics import compute_metric
+
             per_item_metrics = {}
             for mname in metric_names:
                 try:
@@ -212,4 +215,5 @@ def run(
 def _hash_spec(content: str) -> str:
     """Return a short hex digest of the spec content."""
     import hashlib
+
     return hashlib.sha256(content.encode()).hexdigest()[:12]

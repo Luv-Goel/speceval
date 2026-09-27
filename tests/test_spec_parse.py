@@ -213,8 +213,10 @@ class TestParseSpec:
             "metrics:\n"
             "  - name: exact_match\n"
         )
-        with patch("pathlib.Path.exists", return_value=True), \
-             patch("pathlib.Path.read_text", return_value=valid_yaml):
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.read_text", return_value=valid_yaml),
+        ):
             spec = parse_spec("~/test_spec.yaml")
             assert spec.name == "test"
 

@@ -188,10 +188,22 @@ class TestSQLiteStoreRuns:
     def test_get_runs_multiple(self, sqlite_store: SQLiteStore):
         """get_runs returns all saved runs."""
         store = sqlite_store
-        store.save_run(run_id="run_a", spec_hash="a", model_name="m1", dataset_name="d1",
-                       provenance_json="{}", status="completed")
-        store.save_run(run_id="run_b", spec_hash="b", model_name="m2", dataset_name="d2",
-                       provenance_json="{}", status="running")
+        store.save_run(
+            run_id="run_a",
+            spec_hash="a",
+            model_name="m1",
+            dataset_name="d1",
+            provenance_json="{}",
+            status="completed",
+        )
+        store.save_run(
+            run_id="run_b",
+            spec_hash="b",
+            model_name="m2",
+            dataset_name="d2",
+            provenance_json="{}",
+            status="running",
+        )
 
         runs = store.get_runs()
         assert len(runs) == 2
@@ -201,10 +213,22 @@ class TestSQLiteStoreRuns:
     def test_get_runs_ordered_by_timestamp_desc(self, sqlite_store: SQLiteStore):
         """get_runs orders by timestamp descending."""
         store = sqlite_store
-        store.save_run(run_id="first", spec_hash="a", model_name="m", dataset_name="d",
-                       provenance_json="{}", status="completed")
-        store.save_run(run_id="second", spec_hash="b", model_name="m", dataset_name="d",
-                       provenance_json="{}", status="completed")
+        store.save_run(
+            run_id="first",
+            spec_hash="a",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+            status="completed",
+        )
+        store.save_run(
+            run_id="second",
+            spec_hash="b",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+            status="completed",
+        )
 
         runs = store.get_runs()
         assert len(runs) >= 2
@@ -214,10 +238,22 @@ class TestSQLiteStoreRuns:
     def test_save_run_updates(self, sqlite_store: SQLiteStore):
         """Save run with same ID updates existing record."""
         store = sqlite_store
-        store.save_run(run_id="run_1", spec_hash="abc", model_name="m", dataset_name="d",
-                       provenance_json="{}", status="running")
-        store.save_run(run_id="run_1", spec_hash="abc", model_name="m", dataset_name="d",
-                       provenance_json="{}", status="completed")
+        store.save_run(
+            run_id="run_1",
+            spec_hash="abc",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+            status="running",
+        )
+        store.save_run(
+            run_id="run_1",
+            spec_hash="abc",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+            status="completed",
+        )
 
         run = store.get_run("run_1")
         assert run["status"] == "completed"
@@ -226,8 +262,9 @@ class TestSQLiteStoreRuns:
         """save_run without init_store raises StoreError."""
         store = SQLiteStore(":memory:")
         with pytest.raises(StoreError, match="not initialised"):
-            store.save_run(run_id="test", spec_hash="a", model_name="m",
-                           dataset_name="d", provenance_json="{}")
+            store.save_run(
+                run_id="test", spec_hash="a", model_name="m", dataset_name="d", provenance_json="{}"
+            )
 
 
 class TestSQLiteStorePersistence:
@@ -236,7 +273,9 @@ class TestSQLiteStorePersistence:
     @pytest.mark.skipif(sys.platform.startswith("win"), reason="Windows temp file locking")
     def test_persistence_to_file(self):
         """Data persists when store is closed and reopened."""
-        import tempfile, os
+        import os
+        import tempfile
+
         tmp = tempfile.mktemp(suffix=".db", prefix="speceval_persist_")
         db_path = tmp
 

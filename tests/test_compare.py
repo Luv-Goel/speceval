@@ -204,32 +204,55 @@ class TestCompareRuns:
 
     def test_empty_run_a_raises(self, sqlite_store: SQLiteStore):
         """Run with no results raises CompareError."""
-        sqlite_store.save_run(run_id="empty_run", spec_hash="a", model_name="m",
-                              dataset_name="d", provenance_json="{}")
-        sqlite_store.save_run(run_id="other_run", spec_hash="b", model_name="m",
-                              dataset_name="d", provenance_json="{}")
+        sqlite_store.save_run(
+            run_id="empty_run",
+            spec_hash="a",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+        )
+        sqlite_store.save_run(
+            run_id="other_run",
+            spec_hash="b",
+            model_name="m",
+            dataset_name="d",
+            provenance_json="{}",
+        )
         sqlite_store.save_result(
-            run_id="other_run", item_index=0, input_json="{}",
-            expected="", prediction="", metrics_json="{}", duration_ms=0.0,
+            run_id="other_run",
+            item_index=0,
+            input_json="{}",
+            expected="",
+            prediction="",
+            metrics_json="{}",
+            duration_ms=0.0,
         )
         with pytest.raises(CompareError, match="has no results"):
             compare_runs("empty_run", "other_run", sqlite_store)
 
     def test_no_common_metrics_raises(self, sqlite_store: SQLiteStore):
         """Runs with no common metrics raise CompareError."""
-        sqlite_store.save_run(run_id="run_x", spec_hash="a", model_name="m",
-                              dataset_name="d", provenance_json="{}")
-        sqlite_store.save_run(run_id="run_y", spec_hash="b", model_name="m",
-                              dataset_name="d", provenance_json="{}")
+        sqlite_store.save_run(
+            run_id="run_x", spec_hash="a", model_name="m", dataset_name="d", provenance_json="{}"
+        )
+        sqlite_store.save_run(
+            run_id="run_y", spec_hash="b", model_name="m", dataset_name="d", provenance_json="{}"
+        )
         sqlite_store.save_result(
-            run_id="run_x", item_index=0, input_json="{}",
-            expected="", prediction="",
+            run_id="run_x",
+            item_index=0,
+            input_json="{}",
+            expected="",
+            prediction="",
             metrics_json=json.dumps({"metric_a": 0.5}),
             duration_ms=0.0,
         )
         sqlite_store.save_result(
-            run_id="run_y", item_index=0, input_json="{}",
-            expected="", prediction="",
+            run_id="run_y",
+            item_index=0,
+            input_json="{}",
+            expected="",
+            prediction="",
             metrics_json=json.dumps({"metric_b": 0.6}),
             duration_ms=0.0,
         )

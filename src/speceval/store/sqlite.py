@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sqlite3
 import threading
 from pathlib import Path
@@ -68,8 +67,15 @@ class SQLiteStore(ResultStore):
                        (run_id, item_index, input_json, expected, prediction,
                         metrics_json, duration_ms)
                        VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (run_id, item_index, input_json, expected, prediction,
-                     metrics_json, duration_ms),
+                    (
+                        run_id,
+                        item_index,
+                        input_json,
+                        expected,
+                        prediction,
+                        metrics_json,
+                        duration_ms,
+                    ),
                 )
                 self._conn.commit()
             except sqlite3.Error as exc:
@@ -142,8 +148,7 @@ class SQLiteStore(ResultStore):
                        (id, spec_hash, model_name, dataset_name, timestamp,
                         provenance_json, status)
                        VALUES (?, ?, ?, ?, datetime('now'), ?, ?)""",
-                    (run_id, spec_hash, model_name, dataset_name,
-                     provenance_json, status),
+                    (run_id, spec_hash, model_name, dataset_name, provenance_json, status),
                 )
                 self._conn.commit()
             except sqlite3.Error as exc:
@@ -154,9 +159,7 @@ class SQLiteStore(ResultStore):
         with self._lock:
             self._assert_open()
             try:
-                cursor = self._conn.execute(
-                    "SELECT * FROM runs WHERE id = ?", (run_id,)
-                )
+                cursor = self._conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,))
                 row = cursor.fetchone()
                 return dict(row) if row else None
             except sqlite3.Error as exc:

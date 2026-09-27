@@ -90,13 +90,9 @@ class HuggingFaceAdapter(ModelAdapter):
         logger.info("Loading HuggingFace model '%s' …", self._model_name)
 
         try:
-            await asyncio.get_event_loop().run_in_executor(
-                _EXECUTOR, self._load_model_sync
-            )
+            await asyncio.get_event_loop().run_in_executor(_EXECUTOR, self._load_model_sync)
         except Exception as exc:
-            raise ModelNotFoundError(
-                f"Failed to load model '{self._model_name}': {exc}"
-            ) from exc
+            raise ModelNotFoundError(f"Failed to load model '{self._model_name}': {exc}") from exc
 
         self._loaded = True
         logger.info("Model '%s' loaded successfully.", self._model_name)
@@ -125,7 +121,6 @@ class HuggingFaceAdapter(ModelAdapter):
 
     def _predict_sync(self, inputs: list[dict]) -> list[dict]:
         """Synchronous batched inference (runs in thread pool)."""
-        import torch
 
         results: list[dict] = []
 
@@ -167,7 +162,7 @@ class HuggingFaceAdapter(ModelAdapter):
             )
 
         decoded = self._tokenizer.batch_decode(
-            outputs[:, inputs["input_ids"].shape[1]:],
+            outputs[:, inputs["input_ids"].shape[1] :],
             skip_special_tokens=True,
         )
 
