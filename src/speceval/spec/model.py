@@ -192,6 +192,8 @@ class SpecConfig(BaseModel):
     seeds: dict[str, int] | None = Field(default_factory=dict)
     env: EnvConfig | None = None
     assertions: list[AssertionConfig] | None = None
+    cache: bool = Field(default=False)
+    error_tolerance: int = Field(default=0, ge=0)
 
     @model_validator(mode="after")
     def _check_seeds_duplicates(self) -> SpecConfig:

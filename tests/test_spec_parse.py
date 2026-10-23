@@ -289,3 +289,33 @@ class TestSpecToYamlWithFixture:
         assert reparsed.assertions[0].metric_name == "exact_match"
         assert reparsed.assertions[0].operator == "gte"
         assert reparsed.assertions[0].value == 0.5
+
+
+class TestSpecConfigNewFields:
+    """Tests for the cache and error_tolerance fields added to SpecConfig."""
+
+    def test_cache_defaults_to_false(self, sample_spec_dict):
+        spec = SpecConfig.model_validate(sample_spec_dict)
+        assert spec.cache is False
+
+    def test_cache_can_be_enabled(self, sample_spec_dict):
+        data = dict(sample_spec_dict)
+        data["cache"] = True
+        spec = SpecConfig.model_validate(data)
+        assert spec.cache is True
+
+    def test_error_tolerance_defaults_to_zero(self, sample_spec_dict):
+        spec = SpecConfig.model_validate(sample_spec_dict)
+        assert spec.error_tolerance == 0
+
+    def test_error_tolerance_can_be_set(self, sample_spec_dict):
+        data = dict(sample_spec_dict)
+        data["error_tolerance"] = 3
+        spec = SpecConfig.model_validate(data)
+        assert spec.error_tolerance == 3
+
+    def test_error_tolerance_negative_rejected(self, sample_spec_dict):
+        data = dict(sample_spec_dict)
+        data["error_tolerance"] = -1
+        with pytest.raises(Exception, match="greater than or equal"):
+            SpecConfig.model_validate(data)
