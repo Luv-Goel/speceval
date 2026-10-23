@@ -1,0 +1,45 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="#F8FAFC"/>
+  
+  <!-- Components -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="150" width="150" height="100" rx="10" fill="url(#grad1)"/>
+    <text x="125" y="200" fill="white" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="middle">YAML Spec</text>
+  </g>
+  
+  <g filter="url(#shadow)">
+    <rect x="325" y="150" width="150" height="100" rx="10" fill="url(#grad1)"/>
+    <text x="400" y="200" fill="white" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="middle">Engine</text>
+  </g>
+  
+  <g filter="url(#shadow)">
+    <rect x="600" y="50" width="150" height="80" rx="10" fill="url(#grad1)"/>
+    <text x="675" y="95" fill="white" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="middle">Metrics</text>
+  </g>
+  
+  <g filter="url(#shadow)">
+    <rect x="600" y="270" width="150" height="80" rx="10" fill="url(#grad1)"/>
+    <text x="675" y="315" fill="white" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="middle">Adapters</text>
+  </g>
+  
+  <!-- Arrows -->
+  <path d="M 200 200 L 315 200" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 475 175 L 590 90" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 475 225 L 590 310" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+  
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+    </marker>
+  </defs>
+</svg>
