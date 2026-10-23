@@ -312,3 +312,50 @@ class TestCliList:
         assert result.exit_code == 0
         assert "run1" in result.stdout
         assert "run2" in result.stdout
+
+
+class TestCliNormalize:
+    """Tests for `speceval normalize` command."""
+
+    def test_normalize_strips_none_and_rewrites(self, runner: CliRunner, temp_dir: Path):
+        """None values are stripped and keys keep original order."""
+        spec_file = temp_dir / "spec.yaml"
+        spec_file.write_text(
+            "name: my-eval\n"
+            "model:\n"
+            "  provider: openai\n"
+            "  name: gpt-4o\n"
+            "  endpoint: null\n"
+            "dataset:\n"
+            "  source: jsonl\n"
+            "  path: ./data.jsonl\n"
+            "metrics:\n"
+            "  - name: exact_match\n"
+            "trials: 1\n"
+        )
+        result = runner.invoke(app, ["normalize", "--spec", str(spec_file)])
+        assert result.exit_code == 0
+        content = spec_file.read_text()
+        assert "endpoint" not in content  # None stripped
+        assert "name: my-eval" in content
+        assert "gpt-4o" in content
+
+    def test_normalize_can_write_to_output(self, runner: CliRunner, temp_dir: Path):
+        """--output writes to a different path without touching the input."""
+        spec_file = temp_dir / "spec.yaml"
+        spec_file.write_text(
+            "name: my-eval\nmodel:\n  provider: openai\n  name: gpt-4o\n"
+            "dataset:\n  source: jsonl\n  path: ./data.jsonl\nmetrics:\n  - name: exact_match\n"
+        )
+        out_file = temp_dir / "out.yaml"
+        result = runner.invoke(
+            app, ["normalize", "--spec", str(spec_file), "--output", str(out_file)]
+        )
+        assert result.exit_code == 0
+        assert out_file.exists()
+        assert spec_file.read_text() != ""  # input unchanged
+
+    def test_normalize_missing_file(self, runner: CliRunner):
+        """Non-existent spec reports error."""
+        result = runner.invoke(app, ["normalize", "--spec", "/nonexistent/spec.yaml"])
+        assert result.exit_code == 1

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-from speceval.cli.commands import compare, init, report, run, validate
+from speceval.cli.commands import compare, init, normalize, report, run, validate
 
 app = typer.Typer(
     name="speceval",
@@ -16,6 +16,7 @@ app = typer.Typer(
 app.command(name="init")(init.run)
 app.command(name="run")(run.run)
 app.command(name="validate")(validate.run)
+app.command(name="normalize")(normalize.run)
 app.command(name="compare")(compare.run)
 app.command(name="report")(report.run)
 
